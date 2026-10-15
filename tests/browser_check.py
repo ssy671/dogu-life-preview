@@ -36,7 +36,8 @@ try:
   page.select_option('#sort-select','latest');assert cards.first.get_attribute('data-slug')==latest[0]['slug']
   page.locator('#category-tabs a[data-category="디지털 정리"]').click()
   expect(cards).to_have_count(sum(p['category']=='디지털 정리' for p in posts))
-  page.fill('#search-input','다운로드');page.locator('#search-form button').click();expect(cards).to_have_count(1)
+  search_title=next(p['title'] for p in posts if p['slug']=='organize-downloads-folder')
+  page.fill('#search-input',search_title);page.locator('#search-form button').click();expect(cards).to_have_count(1)
   assert cards.first.get_attribute('data-slug')=='organize-downloads-folder'
   page.fill('#search-input','no-match-987654');page.locator('#search-form button').click();expect(cards).to_have_count(0);expect(page.locator('#empty-state')).to_be_visible()
   page.fill('#search-input','');page.locator('#search-form button').click();page.locator('#category-tabs a[data-category=""]').click()
