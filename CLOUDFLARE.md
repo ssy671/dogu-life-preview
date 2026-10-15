@@ -29,7 +29,6 @@ scripts/build.py
 docs/static/**
 docs/about/**
 docs/contact/**
-docs/plan/**
 ```
 
 `content/views.json`, `content/state.json`, `content/queue.json`, `docs/index.html`, `docs/data/**`, `docs/post/**`의 변경만 있는 커밋은 Cloudflare 빌드를 시작할 필요가 없습니다. 발행 글과 디자인 변경은 위 포함 경로에서 감지됩니다. 새 글 발행은 하루 한 번이며 수동 수정 시 빌드가 추가됩니다.
