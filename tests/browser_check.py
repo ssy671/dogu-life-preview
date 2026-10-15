@@ -52,6 +52,14 @@ try:
   assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth + 1'),'Mobile horizontal overflow'
   Path('artifacts').mkdir(exist_ok=True);page.screenshot(path='artifacts/mobile.png',full_page=True)
   page.set_viewport_size({'width':1440,'height':1000});page.screenshot(path='artifacts/desktop.png',full_page=True)
+  snapshot_source='https://counts.example.test/views.json'
+  remote_home=re.sub(r'<body[^>]*>', '<body data-views-source="'+snapshot_source+'">',home,count=1)
+  remote_url=base+'?test=1&sort=popular&remote=1'
+  context.route(remote_url,lambda route:route.fulfill(status=200,body=remote_home,content_type='text/html'))
+  context.route(snapshot_source,lambda route:route.fulfill(status=200,body=json.dumps({'updated_at':'2026-10-15T23:59:59Z','counts':{posts[-1]['slug']:777}}),headers={'Access-Control-Allow-Origin':'*','Content-Type':'application/json'}))
+  page.goto(remote_url)
+  expect(page.locator('#article-list article.card:visible').first).to_have_attribute('data-slug',posts[-1]['slug'])
+  expect(page.locator('#article-list article.card:visible').first.locator('.view-count')).to_have_text('조회 777')
   browser.close()
- print('PASS: latest/popular sorting, combined filters, KST today, history, article images and mobile layout.')
+ print('PASS: latest/popular sorting, combined filters, KST today, history, article images, mobile layout and remote view snapshots.')
 finally:server.shutdown();server.server_close()

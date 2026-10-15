@@ -1,12 +1,16 @@
 """Render the blog and topic-specific SVG diagrams; no server or packages required."""
-import argparse,html,json,math,re
+import argparse,html,json,math,re,os
 from datetime import datetime,timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 ROOT=Path(__file__).resolve().parents[1]
-SITE='https://ssy671.github.io/dogu-life-preview'
-PREFIX='/dogu-life-preview/'
+IS_CLOUDFLARE=bool(os.getenv('CF_PAGES'))
+SITE=os.getenv('BLOG_SITE_URL', os.getenv('CF_PAGES_URL','') if IS_CLOUDFLARE else '') or 'https://ssy671.github.io/dogu-life-preview'
+SITE=SITE.rstrip('/')
+BASE_PATH=os.getenv('BLOG_BASE_PATH', '/' if IS_CLOUDFLARE else '/dogu-life-preview/')
+PREFIX='/' + BASE_PATH.strip('/') + '/' if BASE_PATH.strip('/') else '/'
+VIEWS_SOURCE=os.getenv('BLOG_VIEWS_URL','https://raw.githubusercontent.com/ssy671/dogu-life-preview/main/content/views.json' if IS_CLOUDFLARE else '')
 KST=ZoneInfo('Asia/Seoul')
 CATEGORIES=['디지털 정리','업무 습관','도구 활용']
 
@@ -57,7 +61,7 @@ def shell(title,body,description='',article=None):
         url=SITE+'/post/'+article['slug']+'/'
         data={'@context':'https://schema.org','@type':'BlogPosting','headline':article['title'],'description':article['summary'],'datePublished':article['published_at'],'author':{'@type':'Organization','name':'도구생활'},'image':SITE+'/static/diagrams/'+article['slug']+'.svg','mainEntityOfPage':url}
         head=f'<link rel="canonical" href="{esc(url)}"><script type="application/ld+json">{dump(data)}</script>'
-    return f'''<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(title)} · 도구생활</title><meta name="description" content="{esc(description or '디지털 생활과 업무를 가볍게 만드는 도구 활용 가이드')}"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#183e37"><link rel="stylesheet" href="{PREFIX}static/style.css"><link rel="stylesheet" href="{PREFIX}static/upgrade.css">{head}<script defer src="{PREFIX}static/site.js"></script><script defer src="{PREFIX}static/counter.js"></script></head><body><header><a class="brand" href="{PREFIX}">도구생활<span>TOOLS FOR EVERYDAY</span></a><nav><a href="{PREFIX}">글 읽기</a><a href="{PREFIX}about/">소개</a><a href="{PREFIX}plan/">운영 계획</a></nav></header><main>{body}</main><footer><div><b>도구생활</b><p>복잡한 디지털 일상을, 한 편의 글로 가볍게.</p></div><div><a href="{PREFIX}privacy/">개인정보 처리방침</a> · <a href="{PREFIX}contact/">문의</a><p>© {datetime.now(KST).year} 도구생활</p></div></footer></body></html>'''
+    return f'''<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(title)} · 도구생활</title><meta name="description" content="{esc(description or '디지털 생활과 업무를 가볍게 만드는 도구 활용 가이드')}"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#183e37"><link rel="stylesheet" href="{PREFIX}static/style.css"><link rel="stylesheet" href="{PREFIX}static/upgrade.css">{head}<script defer src="{PREFIX}static/site.js"></script><script defer src="{PREFIX}static/counter.js"></script></head><body data-views-source="{esc(VIEWS_SOURCE)}"><header><a class="brand" href="{PREFIX}">도구생활<span>TOOLS FOR EVERYDAY</span></a><nav><a href="{PREFIX}">글 읽기</a><a href="{PREFIX}about/">소개</a><a href="{PREFIX}plan/">운영 계획</a></nav></header><main>{body}</main><footer><div><b>도구생활</b><p>복잡한 디지털 일상을, 한 편의 글로 가볍게.</p></div><div><a href="{PREFIX}privacy/">개인정보 처리방침</a> · <a href="{PREFIX}contact/">문의</a><p>© {datetime.now(KST).year} 도구생활</p></div></footer></body></html>'''
 
 def card(post,views,today):
     count=views.get('counts',{}).get(post['slug'],0);date=day(post);badge='' if date==today else ' hidden'
@@ -101,6 +105,10 @@ def build(now=None):
     privacy='''## 현재 사용하는 정보\n\n이 사이트에는 독자 회원가입과 댓글 기능이 없습니다. 글의 인기도를 보여 주기 위해 hits.sh의 공개 조회수 카운터를 사용합니다. 글을 열면 해당 서비스에 이미지 요청이 전송되며 글의 경로와 접속 IP, 브라우저 요청 정보가 전달될 수 있습니다. 카운터는 고유 독자 수가 아닌 이미지 요청 수를 바탕으로 하며 새로고침이나 자동 요청이 포함될 수 있습니다.\n\n## 집계와 외부 서비스\n\n글별 누적 조회수는 공개된 값이며 매시간 사이트에 반영합니다. 외부 서비스가 응답하지 않으면 마지막으로 확인한 집계를 유지합니다. 브라우저의 추적 방지 설정에 따라 집계되지 않을 수 있습니다. 글꼴을 불러올 때 Google Fonts에 요청이 전송될 수 있습니다. 광고와 결제 서비스는 연결되어 있지 않습니다.\n\n## 운영 안내\n\n콘텐츠 오류와 개인정보 관련 문의 경로는 문의 페이지를 참고해 주세요. 외부 서비스의 최신 처리 정책은 각 제공자의 안내를 확인해 주세요.'''
     privacy_body=f'<section class="reading"><h1>개인정보 처리 안내</h1><div class="prose">{prose(privacy)}<p><a href="https://hits.sh/" rel="noreferrer">hits.sh 서비스 안내</a></p></div></section>'
     (docs/'privacy').mkdir(exist_ok=True);(docs/'privacy/index.html').write_text(shell('개인정보 처리 안내',privacy_body))
+    for name in ['about','contact','plan']:
+        path=docs/name/'index.html'
+        if path.exists():
+            path.write_text(path.read_text().replace('/dogu-life-preview/',PREFIX))
     (docs/'robots.txt').write_text('User-agent: *\nDisallow: /\n')
     return len(posts)
 

@@ -53,8 +53,8 @@
   // Article pages share this script for the date-sensitive NEW badge.
   if (!articleList) return;
 
-  const viewData = readJSON('view-data', {});
-  const counts = viewData && typeof viewData.counts === 'object' && viewData.counts !== null ? viewData.counts : {};
+  let viewData = readJSON('view-data', {});
+  let counts = viewData && typeof viewData.counts === 'object' && viewData.counts !== null ? viewData.counts : {};
   const number = new Intl.NumberFormat('ko-KR');
   const countFor = (slug) => {
     const value = Object.prototype.hasOwnProperty.call(counts, slug) ? Number(counts[slug]) : 0;
@@ -217,7 +217,8 @@
   });
 
   const viewsStatus = document.getElementById('views-status');
-  if (viewsStatus) {
+  function renderViewsStatus() {
+    if (!viewsStatus) return;
     const updated = viewData && viewData.updated_at ? new Date(viewData.updated_at) : null;
     if (updated && Number.isFinite(updated.getTime())) {
       const label = new Intl.DateTimeFormat('ko-KR', {
@@ -232,10 +233,65 @@
   updateViews(articleList);
   renderToday();
   render();
+  renderViewsStatus();
 
   refreshForDate = () => {
     updateBadges();
     renderToday();
     render();
   };
+
+  function validSnapshot(value) {
+    if (!value || typeof value !== 'object' || Array.isArray(value) ||
+        typeof value.updated_at !== 'string' || !value.counts ||
+        typeof value.counts !== 'object' || Array.isArray(value.counts)) return false;
+    // Require a timezone-qualified ISO timestamp, including a valid calendar day.
+    const match = /^(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,9})?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/.exec(value.updated_at);
+    if (!match || !Number.isFinite(Date.parse(value.updated_at))) return false;
+    const year = Number(match[1]), month = Number(match[2]), day = Number(match[3]);
+    const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+    const daysInMonth = [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    return day <= daysInMonth[month - 1] && Object.values(value.counts).every((count) =>
+      typeof count === 'number' && Number.isSafeInteger(count) && count >= 0);
+  }
+
+  let viewsSource;
+  const configuredSource = document.body && document.body.dataset.viewsSource;
+  if (configuredSource) {
+    try {
+      const url = new URL(configuredSource);
+      if (url.protocol === 'https:' && !url.username && !url.password) viewsSource = url.href;
+    } catch {
+      // An absent or invalid source leaves the embedded snapshot unchanged.
+    }
+  }
+  if (viewsSource && typeof window.fetch === 'function') {
+    let refreshing = false;
+    const refreshViews = async () => {
+      if (refreshing) return;
+      refreshing = true;
+      try {
+        const response = await window.fetch(viewsSource, {
+          mode: 'cors', credentials: 'omit', referrerPolicy: 'no-referrer', cache: 'no-store'
+        });
+        if (!response.ok) return;
+        const snapshot = await response.json();
+        if (!validSnapshot(snapshot)) return;
+        const currentTime = viewData && typeof viewData.updated_at === 'string' ? Date.parse(viewData.updated_at) : NaN;
+        if (Number.isFinite(currentTime) && Date.parse(snapshot.updated_at) < currentTime) return;
+        viewData = snapshot;
+        counts = snapshot.counts;
+        updateViews(articleList);
+        renderToday();
+        render();
+        renderViewsStatus();
+      } catch {
+        // Network or CORS errors retain the last usable snapshot without alerts.
+      } finally {
+        refreshing = false;
+      }
+    };
+    refreshViews();
+    window.setInterval(refreshViews, 60 * 60 * 1000);
+  }
 })();
