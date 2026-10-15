@@ -1,0 +1,99 @@
+/* Progressive additions to the original Dogu Life stylesheet. */
+[hidden] { display: none !important; }
+html { scroll-padding-top: 24px; }
+body { word-break: keep-all; overflow-wrap: anywhere; }
+main, header, footer, .hero > *, .section-head > *, .card-copy { min-width: 0; }
+.today-section, #today, #today-section { padding: 10px 0 55px; }
+#today-list { scroll-margin-top: 28px; }
+#today-heading { margin-bottom: 10px; }
+#today-description { max-width: 690px; color: var(--muted); font-size: 14px; margin: 0 0 25px; }
+#articles { padding-top: 24px; border-top: 1px solid var(--line); }
+.section-head h2 { line-height: 1.5; }
+.browse-controls, .browse-toolbar, .filter-toolbar { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.browse-controls { justify-content: space-between; margin-bottom: 22px; }
+.browse-toolbar, .filter-toolbar { justify-content: space-between; margin: 0 0 18px; }
+.browse-controls .categories, #category-tabs { margin-bottom: 0; }
+.sort-control { display: flex; gap: 9px; align-items: center; white-space: nowrap; margin: 0; }
+.sort-control label { margin: 0; font-size: 12px; }
+#sort-select { display: inline-block; width: auto; min-width: 105px; margin: 0; padding: 8px 30px 8px 11px; font-size: 12px; background: #fff; }
+.today-control, label:has(> #today-filter) { display: inline-flex; align-items: center; gap: 8px; margin: 0; font-size: 12px; cursor: pointer; white-space: nowrap; }
+#today-filter { display: inline-block; flex: 0 0 auto; width: 16px; height: 16px; margin: 0; padding: 0; accent-color: var(--ink); }
+.results-summary { display: flex; align-items: baseline; justify-content: space-between; gap: 15px; flex-wrap: wrap; margin: 0 0 20px; }
+#result-count { font-size: 12px; color: var(--ink); white-space: nowrap; }
+#views-status { font-size: 11px; line-height: 1.8; color: var(--muted); margin: 0; }
+.search { max-width: 100%; }
+.search input { min-width: 0; }
+.search button { flex: 0 0 auto; }
+#category-tabs { gap: 9px; }
+#category-tabs a { white-space: nowrap; }
+.card { height: 100%; }
+.card > a { display: flex; flex-direction: column; height: 100%; }
+.card-copy { display: flex; flex-direction: column; flex: 1; }
+.card-copy h3 { overflow-wrap: anywhere; }
+.card-copy p { flex: 1; }
+.card-labels { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+.new-badge { display: inline-flex; align-items: center; justify-content: center; background: var(--lime); color: #28452a; border: 1px solid #c3df76; border-radius: 4px; padding: 2px 6px; font-size: 9px; font-weight: 800; line-height: 1.5; letter-spacing: .5px; vertical-align: middle; }
+.card-art { height: auto; min-height: 0; aspect-ratio: 2 / 1; overflow: hidden; }
+.card-art > svg, .card-art > img, .card-art picture, .card-art picture img { display: block; width: 100%; height: 100%; max-width: 100%; object-fit: cover; }
+.card-art > svg { aspect-ratio: 2 / 1; flex: 0 0 100%; }
+.card-art svg text { font-family: 'Noto Sans KR', system-ui, sans-serif; }
+.card-footer, .card-copy .meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; line-height: 1.8; }
+.card-footer { border-top: 1px solid var(--line); padding-top: 14px; color: var(--muted); font-size: 10px; }
+.card-footer .meta { padding: 0; border: 0; }
+.view-count { white-space: nowrap; font-variant-numeric: tabular-nums; }
+#empty-state { margin: 0; border: 1px dashed #c4cfbb; border-radius: 9px; padding: 45px 24px; background: #f0f3e8; text-align: center; color: var(--muted); font-size: 14px; }
+.reading-meta, .reading > .meta { display: flex; align-items: center; flex-wrap: wrap; gap: 9px 18px; line-height: 1.9; }
+.reading-meta { font-size: 12px; color: var(--muted); padding: 15px 0; border-top: 1px solid var(--line); margin-bottom: 25px; }
+.reading .card-labels { margin-bottom: 15px; }
+.reading figure, .post-figure { margin: 32px 0; }
+.reading figure img, .reading figure svg, .post-figure img, .post-figure svg { display: block; width: 100%; height: auto; max-width: 100%; border-radius: 10px; }
+.reading figcaption, .post-figure figcaption { color: var(--muted); font-size: 12px; line-height: 1.8; margin-top: 10px; }
+.prose a { text-decoration: underline; text-underline-offset: 3px; }
+.prose ul, .prose ol { padding-left: 24px; }
+.prose li { margin-bottom: 8px; }
+.prose blockquote { margin: 28px 0; padding: 12px 20px; border-left: 3px solid #a7c375; background: #edf2e3; }
+.prose blockquote p:last-child { margin-bottom: 0; }
+.post-footer { margin-top: 42px; padding-top: 23px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+.post-footer p { margin-bottom: 12px; }
+.post-footer a { text-decoration: underline; text-underline-offset: 3px; }
+footer a { display: inline-block; }
+@media (max-width: 850px) {
+  .today-section, #today, #today-section { padding-bottom: 40px; }
+  .browse-controls { align-items: flex-start; }
+  .search { margin-bottom: 16px; }
+  .section-head { gap: 0; }
+  .results-summary { align-items: flex-start; }
+  #views-status { flex-basis: 100%; }
+}
+@media (max-width: 560px) {
+  header { gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+  header nav { gap: 12px; flex-wrap: wrap; align-items: center; }
+  .hero h1 { font-size: clamp(31px, 9.5vw, 39px); letter-spacing: -1.9px; }
+  .hero p { font-size: 14px; }
+  .hero-art { width: 100%; }
+  h2 { font-size: 25px; }
+  .browse-controls { gap: 16px; }
+  .browse-toolbar, .filter-toolbar { gap: 12px; }
+  #category-tabs { flex-basis: 100%; gap: 8px; }
+  #category-tabs a { font-size: 11px; padding: 6px 12px; }
+  .sort-control { margin-right: auto; }
+  .today-control { font-size: 11px; }
+  .results-summary { gap: 7px; margin-bottom: 17px; }
+  #today-description { font-size: 13px; }
+  .articles { gap: 20px; }
+  .card-art { height: auto; aspect-ratio: 2 / 1; }
+  .card-copy { padding: 21px; }
+  .card-copy h3 { font-size: 20px; }
+  .card-copy p { min-height: 0; }
+  .reading h1 { font-size: 30px; line-height: 1.45; letter-spacing: -1.5px; }
+  .lead { font-size: 16px; }
+  .reading figure, .post-figure { margin: 26px 0; }
+  .reading-meta, .reading > .meta { gap: 6px 12px; font-size: 11px; }
+  .reading figcaption { font-size: 11px; }
+  footer { gap: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .card { transition: none; }
+  .card:hover { transform: none; }
+}

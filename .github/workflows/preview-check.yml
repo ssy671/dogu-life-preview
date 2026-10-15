@@ -2,9 +2,9 @@ name: Check preview URL
 on:
   push:
     branches: [main]
-    paths: [.github/workflows/preview-check.yml]
+    paths: [.github/workflows/preview-check.yml, tests/browser_check.py]
   workflow_run:
-    workflows: ["pages build and deployment"]
+    workflows: ["pages build and deployment", "Publish daily articles and refresh views"]
     types: [completed]
   workflow_dispatch:
 permissions:
@@ -12,49 +12,26 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: main
           persist-credentials: false
-      - name: Verify published articles and assets
-        shell: python
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify live homepage, images, data, and all article URLs
+        run: python scripts/check_live.py
+      - name: Install browser test dependency
         run: |
-          import json, os, time, urllib.request
-          from pathlib import Path
-          from html.parser import HTMLParser
-          base = "https://ssy671.github.io/dogu-life-preview/"
-          posts = json.loads(Path("content/posts.json").read_text())
-          expected = {p["slug"]: p["title"] for p in posts}
-          class Cards(HTMLParser):
-              def __init__(self):
-                  super().__init__()
-                  self.count = 0
-              def handle_starttag(self, tag, attrs):
-                  if tag == "article" and "card" in dict(attrs).get("class", "").split():
-                      self.count += 1
-          def read(path):
-              request = urllib.request.Request(base + path, headers={"Cache-Control": "no-cache", "User-Agent": "Dogu-Life-Preview-Check"})
-              with urllib.request.urlopen(request, timeout=15) as response:
-                  body = response.read().decode("utf-8")
-                  print(f"{path or '/'} -> HTTP {response.status}", flush=True)
-                  return body
-          for attempt in range(1, 9):
-              try:
-                  home = read("")
-                  parser = Cards(); parser.feed(home)
-                  assert parser.count == len(posts), f"Expected {len(posts)} articles; found {parser.count}"
-                  assert "--ink" in read("static/style.css"), "Missing stylesheet"
-                  for slug, title in expected.items():
-                      article = read("post/" + slug + "/")
-                      assert title in article, f"Missing title in {slug}"
-                      assert "<h2>" in article, f"Missing article body in {slug}"
-                  print(f"PASS: all {len(posts)} articles and homepage are live.", flush=True)
-                  with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
-                      summary.write(f"Verified {len(posts)} published articles, homepage cards and stylesheet at {base}\n")
-                  break
-              except Exception as error:
-                  print(f"Attempt {attempt}: {error}", flush=True)
-                  if attempt == 8:
-                      raise
-                  time.sleep(15)
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+      - name: Verify sorting and filters on desktop and mobile
+        run: python tests/browser_check.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: blog-screen-check
+          path: artifacts/
+          retention-days: 3

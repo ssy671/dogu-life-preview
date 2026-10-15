@@ -1,0 +1,68 @@
+name: Publish daily articles and refresh views
+on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/**
+      - content/**
+      - docs/static/**
+      - .github/workflows/daily-publish.yml
+  schedule:
+    - cron: '0 0 * * *'
+    - cron: '7 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: dogu-life-publication
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run publication and counter tests
+        run: python -m unittest discover -s tests -v
+      - name: Publish three reviewed articles after 09:00 Asia/Seoul
+        run: python scripts/publish.py
+      - name: Read public view totals without incrementing
+        run: python scripts/sync_views.py
+      - name: Build illustrated pages
+        run: python scripts/build.py
+      - name: Save publication and counts
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add content docs
+          if ! git diff --cached --quiet; then
+            git commit -m 'Publish scheduled articles and refresh public view totals'
+            git push origin HEAD:main
+          fi
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - name: Deploy the generated blog
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Report remaining reviewed articles
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          pending = len(json.loads(Path('content/queue.json').read_text()))
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as f:
+              f.write(f'Reviewed queue: {pending} articles ({pending // 3} full daily releases).\n')
+          if pending < 9:
+              print('::warning::Reviewed article queue is running low. Add more reviewed originals to content/queue.json.')
+          PY
