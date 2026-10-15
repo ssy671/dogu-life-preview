@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-15T09:41:50.741317Z",
+  "updated_at": "2026-10-15T14:13:47.632245Z",
   "counts": {
     "check-email-in-windows": 0,
     "name-files-consistently": 0,
@@ -17,7 +17,7 @@
     "meeting-notes-decisions-actions": 0,
     "choose-tools-by-workflow": 0,
     "weekly-digital-reset": 0,
-    "end-of-day-work-routine": 0,
-    "notification-rules": 0
+    "end-of-day-work-routine": 2,
+    "notification-rules": 3
   }
 }
