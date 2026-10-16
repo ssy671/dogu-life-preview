@@ -1,0 +1,8 @@
+{
+  "name": "lifehint",
+  "compatibility_date": "2026-10-16",
+  "workers_dev": true,
+  "assets": {
+    "directory": "./docs"
+  }
+}

@@ -16,6 +16,15 @@ class CloudflareBuildTests(unittest.TestCase):
  def test_production_site_can_be_configured(self):
   m=self.load({'CF_PAGES':'1','CF_PAGES_URL':'https://preview.example.pages.dev','BLOG_SITE_URL':'https://example.pages.dev/','BLOG_BASE_PATH':'/'})
   self.assertEqual(m.SITE,'https://example.pages.dev');self.assertEqual(m.PREFIX,'/')
+ def test_workers_build_uses_root_without_guessing_its_hostname(self):
+  m=self.load({'WORKERS_CI':'1'})
+  self.assertEqual(m.PREFIX,'/');self.assertEqual(m.SITE,'')
+  self.assertTrue(m.VIEWS_SOURCE.endswith('/content/views.json'))
+  post={'slug':'example','title':'Example','summary':'Summary','published_at':'2026-10-15T09:00:00+09:00'}
+  self.assertNotIn('rel="canonical"',m.shell('Example','<p>Example</p>',article=post))
+ def test_workers_final_hostname_can_be_configured(self):
+  m=self.load({'WORKERS_CI':'1','BLOG_SITE_URL':'https://lifehint.example.workers.dev/'})
+  self.assertEqual(m.SITE,'https://lifehint.example.workers.dev');self.assertEqual(m.PREFIX,'/')
  def test_all_cloudflare_page_links_and_diagrams_exist(self):
   m=self.load({'CF_PAGES':'1','CF_PAGES_URL':'https://example.pages.dev'})
   with tempfile.TemporaryDirectory() as d:

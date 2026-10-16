@@ -5,8 +5,9 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 ROOT=Path(__file__).resolve().parents[1]
-IS_CLOUDFLARE=bool(os.getenv('CF_PAGES'))
-SITE=os.getenv('BLOG_SITE_URL', os.getenv('CF_PAGES_URL','') if IS_CLOUDFLARE else '') or 'https://ssy671.github.io/dogu-life-preview'
+IS_WORKERS_BUILD=bool(os.getenv('WORKERS_CI'))
+IS_CLOUDFLARE=bool(os.getenv('CF_PAGES')) or IS_WORKERS_BUILD
+SITE=os.getenv('BLOG_SITE_URL') or (os.getenv('CF_PAGES_URL','') if IS_CLOUDFLARE else '') or ('' if IS_WORKERS_BUILD else 'https://ssy671.github.io/dogu-life-preview')
 SITE=SITE.rstrip('/')
 BASE_PATH=os.getenv('BLOG_BASE_PATH', '/' if IS_CLOUDFLARE else '/dogu-life-preview/')
 PREFIX='/' + BASE_PATH.strip('/') + '/' if BASE_PATH.strip('/') else '/'
@@ -115,7 +116,7 @@ def illustration_figure(details):
 
 def shell(title,body,description='',article=None):
     head=''
-    if article:
+    if article and SITE:
         url=SITE+'/post/'+article['slug']+'/'
         data={'@context':'https://schema.org','@type':'BlogPosting','headline':article['title'],'description':article['summary'],'datePublished':article['published_at'],'author':{'@type':'Organization','name':'도구생활'},'image':SITE+'/static/diagrams/'+article['slug']+'.svg','mainEntityOfPage':url}
         head=f'<link rel="canonical" href="{esc(url)}"><script type="application/ld+json">{dump(data)}</script>'
