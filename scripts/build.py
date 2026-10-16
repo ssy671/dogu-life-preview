@@ -1,14 +1,21 @@
 """Render the blog and topic-specific SVG diagrams; no server or packages required."""
 import argparse,html,json,math,re,os
+import xml.etree.ElementTree as ET
 from datetime import datetime,timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 ROOT=Path(__file__).resolve().parents[1]
+SITE_CONFIG=json.loads((ROOT/'content/site.json').read_text()) if (ROOT/'content/site.json').exists() else {}
+PRODUCTION_SITE=SITE_CONFIG.get('production_url','').rstrip('/')
 IS_WORKERS_BUILD=bool(os.getenv('WORKERS_CI'))
 IS_CLOUDFLARE=bool(os.getenv('CF_PAGES')) or IS_WORKERS_BUILD
-SITE=os.getenv('BLOG_SITE_URL') or (os.getenv('CF_PAGES_URL','') if IS_CLOUDFLARE else '') or ('' if IS_WORKERS_BUILD else 'https://ssy671.github.io/dogu-life-preview')
+SITE=os.getenv('BLOG_SITE_URL') or ((PRODUCTION_SITE or os.getenv('CF_PAGES_URL','')) if os.getenv('CF_PAGES') else '') or ('' if IS_WORKERS_BUILD else 'https://ssy671.github.io/dogu-life-preview')
 SITE=SITE.rstrip('/')
+PUBLIC_SITE=bool(os.getenv('CF_PAGES')) and os.getenv('CF_PAGES_BRANCH')=='main' and bool(PRODUCTION_SITE) and SITE==PRODUCTION_SITE
+ADSENSE_CLIENT=SITE_CONFIG.get('adsense_client','') if PUBLIC_SITE else ''
+if ADSENSE_CLIENT and not re.fullmatch(r'ca-pub-\d{16}',ADSENSE_CLIENT):
+    raise ValueError('AdSense client must be a ca-pub- ID with 16 digits')
 BASE_PATH=os.getenv('BLOG_BASE_PATH', '/' if IS_CLOUDFLARE else '/dogu-life-preview/')
 PREFIX='/' + BASE_PATH.strip('/') + '/' if BASE_PATH.strip('/') else '/'
 VIEWS_SOURCE=os.getenv('BLOG_VIEWS_URL','https://raw.githubusercontent.com/ssy671/dogu-life-preview/main/content/views.json' if IS_CLOUDFLARE else '')
@@ -114,13 +121,19 @@ def load_illustrations(posts):
 def illustration_figure(details):
     return f'<figure class="post-figure article-illustration"><img src="{PREFIX}{esc(details["file"])}" alt="{esc(details["alt"])}" width="{details.get("width",1536)}" height="{details.get("height",1024)}" loading="lazy" decoding="async"><figcaption>{esc(details["caption"])}</figcaption></figure>'
 
-def shell(title,body,description='',article=None):
+def shell(title,body,description='',article=None,path=''):
     head=''
+    page_path='post/'+article['slug']+'/' if article else path
+    if SITE:
+        head=f'<link rel="canonical" href="{esc(SITE+"/"+page_path)}">'
     if article and SITE:
         url=SITE+'/post/'+article['slug']+'/'
         data={'@context':'https://schema.org','@type':'BlogPosting','headline':article['title'],'description':article['summary'],'datePublished':article['published_at'],'author':{'@type':'Organization','name':'도구생활'},'image':SITE+'/static/diagrams/'+article['slug']+'.svg','mainEntityOfPage':url}
-        head=f'<link rel="canonical" href="{esc(url)}"><script type="application/ld+json">{dump(data)}</script>'
-    return f'''<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(title)} · 도구생활</title><meta name="description" content="{esc(description or '디지털 생활과 업무를 가볍게 만드는 도구 활용 가이드')}"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#183e37"><link rel="stylesheet" href="{PREFIX}static/style.css"><link rel="stylesheet" href="{PREFIX}static/upgrade.css">{head}<script defer src="{PREFIX}static/site.js"></script><script defer src="{PREFIX}static/counter.js"></script></head><body data-views-source="{esc(VIEWS_SOURCE)}"><header><a class="brand" href="{PREFIX}">도구생활<span>TOOLS FOR EVERYDAY</span></a><nav><a href="{PREFIX}">글 읽기</a><a href="{PREFIX}about/">소개</a></nav></header><main>{body}</main><footer><div><b>도구생활</b><p>복잡한 디지털 일상을, 한 편의 글로 가볍게.</p></div><div><a href="{PREFIX}privacy/">개인정보 처리방침</a> · <a href="{PREFIX}contact/">문의</a><p>© {datetime.now(KST).year} 도구생활</p></div></footer></body></html>'''
+        head+=f'<script type="application/ld+json">{dump(data)}</script>'
+    if ADSENSE_CLIENT:
+        head+=f'<meta name="google-adsense-account" content="{esc(ADSENSE_CLIENT)}"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={esc(ADSENSE_CLIENT)}" crossorigin="anonymous"></script>'
+    robots='index,follow' if PUBLIC_SITE else 'noindex,nofollow'
+    return f'''<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(title)} · 도구생활</title><meta name="description" content="{esc(description or '디지털 생활과 업무를 가볍게 만드는 도구 활용 가이드')}"><meta name="robots" content="{robots}"><meta name="theme-color" content="#183e37"><link rel="stylesheet" href="{PREFIX}static/style.css"><link rel="stylesheet" href="{PREFIX}static/upgrade.css">{head}<script defer src="{PREFIX}static/site.js"></script><script defer src="{PREFIX}static/counter.js"></script></head><body data-views-source="{esc(VIEWS_SOURCE)}"><header><a class="brand" href="{PREFIX}">도구생활<span>TOOLS FOR EVERYDAY</span></a><nav><a href="{PREFIX}">글 읽기</a><a href="{PREFIX}about/">소개</a></nav></header><main>{body}</main><footer><div><b>도구생활</b><p>복잡한 디지털 일상을, 한 편의 글로 가볍게.</p></div><div><a href="{PREFIX}privacy/">개인정보 처리방침</a> · <a href="{PREFIX}contact/">문의</a><p>© {datetime.now(KST).year} 도구생활</p></div></footer></body></html>'''
 
 def card(post,views,today):
     count=views.get('counts',{}).get(post['slug'],0);date=day(post);badge='' if date==today else ' hidden'
@@ -169,14 +182,37 @@ def build(now=None):
     (docs/'data').mkdir(exist_ok=True)
     (docs/'data/posts.json').write_text(dump([public(p) for p in posts]))
     (docs/'data/views.json').write_text(dump(views))
-    privacy='''## 현재 사용하는 정보\n\n이 사이트에는 독자 회원가입과 댓글 기능이 없습니다. 글의 인기도를 보여 주기 위해 hits.sh의 공개 조회수 카운터를 사용합니다. 글을 열면 해당 서비스에 이미지 요청이 전송되며 글의 경로와 접속 IP, 브라우저 요청 정보가 전달될 수 있습니다. 카운터는 고유 독자 수가 아닌 이미지 요청 수를 바탕으로 하며 새로고침이나 자동 요청이 포함될 수 있습니다.\n\n## 집계와 외부 서비스\n\n글별 누적 조회수는 공개된 값이며 매시간 사이트에 반영합니다. 외부 서비스가 응답하지 않으면 마지막으로 확인한 집계를 유지합니다. 브라우저의 추적 방지 설정에 따라 집계되지 않을 수 있습니다. 글꼴을 불러올 때 Google Fonts에 요청이 전송될 수 있습니다. 광고와 결제 서비스는 연결되어 있지 않습니다.\n\n## 운영 안내\n\n콘텐츠 오류와 개인정보 관련 문의 경로는 문의 페이지를 참고해 주세요. 외부 서비스의 최신 처리 정책은 각 제공자의 안내를 확인해 주세요.'''
-    privacy_body=f'<section class="reading"><h1>개인정보 처리 안내</h1><div class="prose">{prose(privacy)}<p><a href="https://hits.sh/" rel="noreferrer">hits.sh 서비스 안내</a></p></div></section>'
-    (docs/'privacy').mkdir(exist_ok=True);(docs/'privacy/index.html').write_text(shell('개인정보 처리 안내',privacy_body))
-    for name in ['about','contact']:
-        path=docs/name/'index.html'
-        if path.exists():
-            path.write_text(path.read_text().replace('/dogu-life-preview/',PREFIX))
-    (docs/'robots.txt').write_text('User-agent: *\nDisallow: /\n')
+    def page(name,title,text,links=''):
+        body=f'<section class="reading"><h1>{esc(title)}</h1><div class="prose">{prose(text)}{links}</div></section>'
+        target=docs/name/'index.html';target.parent.mkdir(exist_ok=True)
+        target.write_text(shell(title,body,path=name+'/'))
+    about='''## 디지털 일상을 더 가볍게\n\n도구생활은 디지털 정리, 업무 습관, 도구 활용을 다루는 블로그입니다. 파일을 정리하고, 할 일을 관리하고, 이미 가진 도구를 편하게 사용하는 방법을 줄글과 그림으로 소개합니다.\n\n## 글을 읽는 방법\n\n각 글은 일상에서 겪는 작은 불편과 그 불편을 줄이는 구체적인 순서를 담습니다. 한 번에 모든 습관을 바꾸기보다 오늘 필요한 한 가지 방법부터 시도해 보세요. 제품 기능과 화면은 버전에 따라 달라질 수 있습니다.\n\n## 콘텐츠와 문의\n\n본문의 그림은 이해를 돕는 보조 자료입니다. 잘못된 내용이나 개선할 부분을 발견하셨다면 문의 페이지로 알려 주세요. 협찬이나 제휴가 있는 글에는 그 관계를 표시합니다.'''
+    page('about','도구생활 소개',about,f'<p><a href="{PREFIX}contact/">문의하기</a></p>')
+    email=SITE_CONFIG.get('contact_email','').strip()
+    contact='''## 독자의 의견을 기다립니다\n\n글의 오류, 내용 보완, 개인정보 관련 문의와 제휴 제안을 받습니다. 문의하실 때에는 해당 글의 제목이나 주소와 함께 구체적인 내용을 알려 주세요.\n\n## 문의 답변\n\n보내주신 내용을 확인한 뒤 이메일로 답변합니다. 이메일 주소와 문의 내용은 답변과 문의 처리에 사용합니다.'''
+    contact_link=f'<p>문의 이메일: <a href="mailto:{esc(email)}">{esc(email)}</a></p>' if email else '<p>문의용 이메일을 준비하고 있습니다.</p>'
+    page('contact','문의',contact,contact_link)
+    privacy='''## 사이트 이용과 조회수\n\n이 사이트에는 독자 회원가입과 댓글 기능이 없습니다. 글의 인기도를 보여 주기 위해 hits.sh의 공개 조회수 카운터를 사용합니다. 글을 열면 해당 서비스에 이미지 요청이 전송되며 글의 경로와 접속 IP, 브라우저 요청 정보가 전달될 수 있습니다. 카운터는 고유 독자 수가 아닌 이미지 요청 수를 바탕으로 하며 새로고침이나 자동 요청이 포함될 수 있습니다.\n\n## 집계와 외부 서비스\n\n글별 누적 조회수는 공개된 값이며 매시간 사이트에 반영합니다. 외부 서비스가 응답하지 않으면 마지막으로 확인한 집계를 유지합니다. 브라우저의 추적 방지 설정에 따라 집계되지 않을 수 있습니다. 사이트를 제공하는 Cloudflare와 글꼴을 제공하는 Google Fonts에도 IP 주소와 브라우저 요청 정보가 전달될 수 있습니다.'''
+    privacy_links='<p><a href="https://hits.sh/" rel="noreferrer">hits.sh 서비스 안내</a> · <a href="https://www.cloudflare.com/privacypolicy/" rel="noreferrer">Cloudflare 개인정보 안내</a> · <a href="https://policies.google.com/privacy?hl=ko" rel="noreferrer">Google 개인정보 안내</a></p>'
+    if ADSENSE_CLIENT:
+        privacy+='''\n\n## Google 광고와 쿠키\n\n이 사이트는 Google AdSense를 통해 광고를 제공할 수 있습니다. Google 및 서드 파티 공급업체는 쿠키를 사용하여 사용자의 이 사이트 또는 다른 웹사이트 이전 방문 기록을 바탕으로 광고를 게재할 수 있습니다. Google의 광고 쿠키를 통해 Google과 파트너는 이 사이트와 인터넷상의 다른 사이트 방문 기록에 따라 광고를 제공할 수 있습니다. 다른 광고 공급업체나 광고 네트워크의 쿠키도 광고 게재에 사용될 수 있습니다.\n\n## 개인 맞춤 광고 선택\n\nGoogle의 내 광고 센터에서 개인 맞춤 광고 설정을 변경하거나 거부할 수 있습니다. 서드 파티 광고 공급업체의 개인 맞춤 광고 쿠키는 해당 업체의 설정 또는 AboutAds의 선택 도구에서 거부할 수 있습니다. 아래에서 Google의 정보 사용 방식과 선택 도구를 확인할 수 있습니다.'''
+        privacy_links+='<p><a href="https://policies.google.com/technologies/partner-sites?hl=ko" rel="noreferrer">Google 파트너 사이트의 정보 사용</a> · <a href="https://myadcenter.google.com/" rel="noreferrer">내 광고 센터</a> · <a href="https://www.aboutads.info/choices/" rel="noreferrer">서드 파티 광고 선택 도구</a></p>'
+    privacy+='''\n\n## 이메일 문의\n\n문의하실 때 보내주신 이메일 주소와 내용은 답변과 문의 처리에 사용합니다. 콘텐츠 오류와 개인정보 관련 문의는 문의 페이지를 이용해 주세요. 외부 서비스의 상세 처리 정책과 선택 방법은 각 제공자의 안내를 확인할 수 있습니다.'''
+    privacy_links+=f'<p><a href="{PREFIX}contact/">개인정보 관련 문의</a></p>'
+    page('privacy','개인정보 처리방침',privacy,privacy_links)
+    if PUBLIC_SITE:
+        (docs/'robots.txt').write_text('User-agent: *\nAllow: /\n\nSitemap: '+PRODUCTION_SITE+'/sitemap.xml\n')
+        urls=ET.Element('urlset',xmlns='http://www.sitemaps.org/schemas/sitemap/0.9')
+        for path in ['', 'about/', 'contact/', 'privacy/']+['post/'+p['slug']+'/' for p in posts]:
+            ET.SubElement(ET.SubElement(urls,'url'),'loc').text=PRODUCTION_SITE+'/'+path
+        (docs/'sitemap.xml').write_text('<?xml version="1.0" encoding="utf-8"?>\n'+ET.tostring(urls,encoding='unicode')+'\n')
+    else:
+        (docs/'robots.txt').write_text('User-agent: *\nDisallow: /\n')
+        (docs/'sitemap.xml').unlink(missing_ok=True)
+    if ADSENSE_CLIENT:
+        (docs/'ads.txt').write_text('google.com, '+ADSENSE_CLIENT.removeprefix('ca-')+', DIRECT, f08c47fec0942fa0\n')
+    else:
+        (docs/'ads.txt').unlink(missing_ok=True)
     return len(posts)
 
 if __name__=='__main__':

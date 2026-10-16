@@ -68,6 +68,7 @@ with sync_playwright() as p:
   browser=p.chromium.launch()
   context=browser.new_context(viewport={'width':1440,'height':1000},timezone_id='Asia/Seoul')
   context.route('https://hits.sh/**',lambda route:route.abort())
+  context.route('https://pagead2.googlesyndication.com/**',lambda route:route.abort())
   context.route('https://fonts.googleapis.com/**',lambda route:route.abort())
   context.route(base+'?test=1',lambda route:route.fulfill(status=200,body=home,content_type='text/html'))
   page=context.new_page();page.goto(base+'?test=1');page.wait_for_function("document.querySelector('#result-count').textContent.includes('개의')")

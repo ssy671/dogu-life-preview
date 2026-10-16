@@ -9,6 +9,9 @@ manifest=ROOT/'content/illustrations.json'
 illustrations=json.loads(manifest.read_text()) if manifest.exists() else {}
 published_illustrations={p['slug']:illustrations[p['slug']] for p in posts if p['slug'] in illustrations}
 image_paths={details['file'] for details in published_illustrations.values()}
+site_config=json.loads((ROOT/'content/site.json').read_text()) if (ROOT/'content/site.json').exists() else {}
+public_check=BASE.rstrip('/')==site_config.get('production_url','').rstrip('/')
+client=site_config.get('adsense_client','')
 class InlineImageParser(HTMLParser):
  def __init__(self):
   super().__init__();self.stack=[];self.images=[]
@@ -33,6 +36,8 @@ def check_raster(path,body,ctype):
  else:valid=body[4:8]==b'ftyp' and any(brand in body[8:40] for brand in (b'avif',b'avis'))
  assert valid,f'{path}: response is not a valid {suffix} image signature'
 paths={'':('id="sort-select"','text/html'),'data/posts.json':('published_at','application/json'),'static/site.js':('popular','application/javascript'),'static/upgrade.css':('today','text/css')}
+if public_check:
+ paths.update({'about/':('도구생활 소개','text/html'),'contact/':(site_config['contact_email'],'text/html'),'privacy/':('개인 맞춤 광고','text/html'),'robots.txt':('Sitemap: '+BASE+'sitemap.xml','text/plain'),'sitemap.xml':(BASE+'post/','application/xml'),'ads.txt':('google.com, '+client.removeprefix('ca-')+', DIRECT, f08c47fec0942fa0','text/plain')})
 for p in posts:
  paths['post/'+p['slug']+'/']=(p['title'],'text/html')
  paths['static/diagrams/'+p['slug']+'.svg']=('<svg','image/svg+xml')
@@ -48,11 +53,19 @@ for attempt in range(1,13):
     if path in image_paths:check_raster(path,payload,r.headers.get_content_type())
     else:
      body=payload.decode('utf-8');assert expected in body,path
+     if public_check and ctype=='text/html':
+      head=body.split('</head>',1)[0]
+      assert head.count('adsbygoogle.js?client='+client)==1,f'{path}: AdSense script not yet deployed'
+      assert f'<meta name="google-adsense-account" content="{client}">' in head,f'{path}: AdSense account meta missing'
+      assert f'<link rel="canonical" href="{BASE+path}">' in head,f'{path}: canonical must use the public Pages URL'
+      assert 'noindex' not in head,f'{path}: production indexing is still blocked'
+     if public_check and path=='robots.txt':assert 'Disallow: /' not in body,'Production crawler access is blocked'
      if path=='':assert body.count('class="card" data-slug=')==len(posts)+min(3,len(posts)), 'Article list not yet updated'
      if path in article_images:
       parser=InlineImageParser();parser.feed(body)
       assert article_images[path] in parser.images,f'{path}: mapped illustration missing from article body'
   print(f'PASS: {BASE} homepage, sorting controls, data, {len(posts)} article pages, their SVG diagrams and {len(image_paths)} generated raster illustrations are live.')
+  if public_check:print('PASS: AdSense script/account on every page, ads.txt, stable canonicals, crawler access, sitemap, privacy and public contact are live.')
   break
  except Exception as e:
   print(f'Attempt {attempt}: {e}',flush=True)

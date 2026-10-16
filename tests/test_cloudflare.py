@@ -12,7 +12,7 @@ class CloudflareBuildTests(unittest.TestCase):
   m=self.load({});self.assertEqual(m.PREFIX,'/dogu-life-preview/');self.assertEqual(m.SITE,'https://ssy671.github.io/dogu-life-preview');self.assertEqual(m.VIEWS_SOURCE,'')
  def test_cloudflare_uses_root_and_external_snapshot(self):
   m=self.load({'CF_PAGES':'1','CF_PAGES_URL':'https://review.example.pages.dev'})
-  self.assertEqual(m.PREFIX,'/');self.assertEqual(m.SITE,'https://review.example.pages.dev');self.assertTrue(m.VIEWS_SOURCE.endswith('/content/views.json'))
+  self.assertEqual(m.PREFIX,'/');self.assertEqual(m.SITE,'https://lifehint-daily.pages.dev');self.assertTrue(m.VIEWS_SOURCE.endswith('/content/views.json'))
  def test_production_site_can_be_configured(self):
   m=self.load({'CF_PAGES':'1','CF_PAGES_URL':'https://preview.example.pages.dev','BLOG_SITE_URL':'https://example.pages.dev/','BLOG_BASE_PATH':'/'})
   self.assertEqual(m.SITE,'https://example.pages.dev');self.assertEqual(m.PREFIX,'/')

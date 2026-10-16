@@ -8,7 +8,7 @@ GitHub 저장소: `ssy671/dogu-life-preview`
 
 | 항목 | 값 |
 | --- | --- |
-| 프로젝트 이름 | 원하는 이름. 사용 가능한 경우 `dogu-life` |
+| 프로젝트 이름 | `lifehint-daily` |
 | 배포 브랜치 | `main` |
 | 프레임워크 | `None` |
 | 빌드 명령 | `python3 scripts/build.py` |
@@ -17,7 +17,7 @@ GitHub 저장소: `ssy671/dogu-life-preview`
 
 Pages가 제공하는 `CF_PAGES` 환경 변수를 감지하면 URL 경로가 `/`로 바뀝니다. 제목·검색·그림·개별 글·오늘 글의 링크는 새 호스트의 루트에서 동작합니다. GitHub Pages용 `/dogu-life-preview/` 경로는 기존 사이트에서 계속 사용합니다.
 
-프로젝트 이름이 확정되면 Cloudflare의 production 환경 변수 `BLOG_SITE_URL`에 `https://실제프로젝트이름.pages.dev`를 설정합니다. 이는 검색엔진용 정규 주소에 사용합니다. 미설정 상태에서는 Cloudflare가 알려 주는 배포 URL을 사용합니다. 별도 API 키나 비밀번호를 저장소에 추가하지 않습니다.
+공개 주소는 `https://lifehint-daily.pages.dev`입니다. `content/site.json`의 `production_url`을 정규 주소로 사용하므로, 해시가 붙은 개별 배포 주소가 검색 대표 주소로 들어가지 않습니다. `BLOG_SITE_URL` 환경 변수로 재정의할 수도 있습니다. 별도 API 키나 비밀번호를 저장소에 추가하지 않습니다.
 
 ## 무료 빌드 한도를 위한 변경 감지 범위
 
@@ -26,6 +26,7 @@ Cloudflare Pages 무료 요금제의 월 빌드 한도 때문에 매시간 변�
 ```text
 content/posts.json
 content/illustrations.json
+content/site.json
 scripts/build.py
 docs/static/**
 docs/about/**
@@ -40,4 +41,12 @@ docs/contact/**
 
 조회수 수집은 기존 GitHub Actions에서 매시간 수행합니다. Cloudflare 페이지는 브라우저에서 공개된 조회수 스냅샷을 별도로 읽으므로 조회수 갱신만을 위한 사이트 재빌드가 필요하지 않습니다. 실패하면 빌드에 포함된 마지막 값으로 정렬합니다. 카운터 식별자는 기존 것을 유지해 조회수 이력을 보존합니다.
 
-현재 검색 노출을 막는 `noindex` 설정은 그대로입니다. 새 주소가 확정되고 공개 운영을 결정한 뒤 검색 등록을 별도로 진행할 수 있습니다.
+Pages의 `main` 배포는 검색 접근을 허용하며 `sitemap.xml`을 생성합니다. 다른 브랜치와 기존 GitHub Pages·Workers 배포는 검색을 차단하고 광고 코드를 포함하지 않습니다. 검색 허용이 즉시 검색 노출을 보장하지는 않습니다.
+
+## 애드센스 연결
+
+`content/site.json`의 `adsense_client`에는 공개 게시자 ID를, `contact_email`에는 공개 문의 이메일을 저장합니다. Pages의 `main` 배포에서 공통 헤드에 애드센스 스크립트와 계정 메타 태그를 넣고, 루트 `ads.txt`를 생성합니다. 소개·문의·개인정보 페이지도 동일한 레이아웃으로 생성합니다.
+
+배포 후 `Check preview URL` 워크플로가 공개 Pages 주소에서 코드·메타 태그·ads.txt·검색 접근·사이트맵·문의·글과 그림을 검사합니다. 브라우저 검사는 광고 요청과 조회수 요청을 차단합니다.
+
+애드센스 화면에서는 코드 삽입을 확인한 뒤 소유권 확인과 사이트 검토 요청을 진행합니다. 코드 연결과 광고 게재 승인은 별개입니다. 승인 후 실제 자동 광고 설정과 개인정보 보호 및 메시지의 동의 설정은 애드센스 계정에서 관리합니다.
