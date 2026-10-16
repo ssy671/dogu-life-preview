@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-16T06:42:31.930813Z",
+  "updated_at": "2026-10-16T07:03:54.611232Z",
   "counts": {
     "check-email-in-windows": 0,
     "name-files-consistently": 0,
@@ -12,15 +12,15 @@
     "three-priorities-a-day": 0,
     "bookmarks-for-projects": 0,
     "learn-shortcuts-gradually": 0,
-    "focus-time-on-calendar": 0,
+    "focus-time-on-calendar": 1,
     "archive-or-delete-documents": 0,
     "meeting-notes-decisions-actions": 0,
     "choose-tools-by-workflow": 0,
     "weekly-digital-reset": 1,
     "end-of-day-work-routine": 4,
     "notification-rules": 4,
-    "write-handover-notes": 0,
+    "write-handover-notes": 1,
     "check-pdf-before-sending": 0,
-    "desktop-shortcut-audit": 1
+    "desktop-shortcut-audit": 2
   }
 }
