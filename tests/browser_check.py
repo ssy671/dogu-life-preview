@@ -17,9 +17,38 @@ server=ThreadingHTTPServer(('127.0.0.1',0),partial(Handler,directory=str(ROOT/'d
 threading.Thread(target=server.serve_forever,daemon=True).start()
 base=f'http://127.0.0.1:{server.server_port}{PREFIX}'
 posts=json.loads((ROOT/'docs/data/posts.json').read_text())
+manifest=ROOT/'content/illustrations.json'
+illustrations=json.loads(manifest.read_text()) if manifest.exists() else {}
+illustrated_post=next((post for post in posts if post['slug'] in illustrations),None)
+article_post=illustrated_post or posts[0]
 fixture={'updated_at':'2026-10-15T00:00:00Z','counts':{posts[0]['slug']:300,posts[1]['slug']:100}}
 home=(ROOT/'docs/index.html').read_text()
 home=re.sub(r'(<script id="view-data" type="application/json">).*?(</script>)',lambda m:m[1]+json.dumps(fixture)+m[2],home)
+def check_article(page,label):
+ picture=page.locator('.post-figure img').last;picture.scroll_into_view_if_needed()
+ page.wait_for_function("Array.from(document.querySelectorAll('.post-figure img')).every(i=>i.complete&&i.naturalWidth>0)")
+ if illustrated_post:
+  details=illustrations[illustrated_post['slug']]
+  figure=page.locator('.prose > figure.article-illustration')
+  expect(figure).to_have_count(1)
+  image=figure.locator('img')
+  expect(image).to_have_attribute('src',PREFIX+details['file'])
+  expect(image).to_have_attribute('alt',details['alt'])
+  expect(figure.locator('figcaption')).to_have_text(details['caption'])
+  assert figure.evaluate("""figure => {
+   const siblings=Array.from(figure.parentElement.children);
+   const index=siblings.indexOf(figure);
+   return figure.previousElementSibling?.tagName==='P' &&
+    siblings.slice(index+1).some(node=>node.tagName==='P');
+  }"""),'Illustration must be placed inside prose with paragraphs before and after it'
+  image.scroll_into_view_if_needed()
+  dimensions=image.evaluate('(img)=>img.decode().then(()=>({width:img.naturalWidth,height:img.naturalHeight}))')
+  assert dimensions['width']>0 and dimensions['height']>0,'Generated raster illustration must decode'
+  assert image.bounding_box()['width']<=page.viewport_size['width'],'Article image exceeds viewport'
+ assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth + 1'),'Article horizontal overflow at '+label
+ assert page.locator('[data-counter-src]').get_attribute('src') is None,'Test visits must not increment counters'
+ Path('artifacts').mkdir(exist_ok=True)
+ page.screenshot(path='artifacts/article-'+label+'.png',full_page=True)
 try:
  with sync_playwright() as p:
   browser=p.chromium.launch()
@@ -45,10 +74,9 @@ try:
   expect(cards).to_have_count(sum(x['date']==today for x in posts));assert 'day=today' in page.url
   page.uncheck('#today-filter');expect(cards).to_have_count(len(posts))
   page.go_back();expect(page.locator('#today-filter')).to_be_checked()
-  page.goto(base+'post/'+posts[0]['slug']+'/?test=1');picture=page.locator('.post-figure img').last;picture.scroll_into_view_if_needed()
-  page.wait_for_function("Array.from(document.querySelectorAll('.post-figure img')).every(i=>i.complete&&i.naturalWidth>0)")
-  assert page.locator('[data-counter-src]').get_attribute('src') is None,'Test visits must not increment counters'
-  page.set_viewport_size({'width':390,'height':844});page.goto(base+'?test=1');page.wait_for_function("document.querySelector('#result-count').textContent.includes('개의')")
+  page.goto(base+'post/'+article_post['slug']+'/?test=1');check_article(page,'desktop')
+  page.set_viewport_size({'width':390,'height':844});check_article(page,'mobile')
+  page.goto(base+'?test=1');page.wait_for_function("document.querySelector('#result-count').textContent.includes('개의')")
   assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth + 1'),'Mobile horizontal overflow'
   Path('artifacts').mkdir(exist_ok=True);page.screenshot(path='artifacts/mobile.png',full_page=True)
   page.set_viewport_size({'width':1440,'height':1000});page.screenshot(path='artifacts/desktop.png',full_page=True)
@@ -61,5 +89,5 @@ try:
   expect(page.locator('#article-list article.card:visible').first).to_have_attribute('data-slug',posts[-1]['slug'])
   expect(page.locator('#article-list article.card:visible').first.locator('.view-count')).to_have_text('조회 777')
   browser.close()
- print('PASS: latest/popular sorting, combined filters, KST today, history, article images, mobile layout and remote view snapshots.')
+ print('PASS: latest/popular sorting, combined filters, KST today, history, inline generated images decoded on desktop/mobile, article layout and remote view snapshots.')
 finally:server.shutdown();server.server_close()

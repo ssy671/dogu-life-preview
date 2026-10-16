@@ -1,0 +1,506 @@
+{
+  "organize-work-folders": {
+    "file": "static/illustrations/organize-work-folders.webp",
+    "alt": "진행 중인 문서와 보관할 문서를 나눈 두 개의 폴더 묶음",
+    "caption": "지금 쓰는 자료와 끝난 자료를 나누면, 매일 찾는 공간을 줄일 수 있습니다.",
+    "after_heading": "폴더 단계는 필요한 만큼만 만드세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "name-files-consistently": {
+    "file": "static/illustrations/name-files-consistently.webp",
+    "alt": "같은 위치의 날짜·목적·버전 표식으로 정렬한 문서 카드",
+    "caption": "이름에 넣을 정보와 순서를 정해 두면 문서를 다시 고르기 쉬워집니다.",
+    "after_heading": "버전과 상태를 구분하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "check-email-in-windows": {
+    "file": "static/illustrations/check-email-in-windows.webp",
+    "alt": "메일함과 확인 시간을 나타내는 시계",
+    "caption": "메일을 확인할 시간을 묶어 두고, 즉시 대응할 연락은 별도로 정합니다.",
+    "after_heading": "메일을 읽고 다음 행동을 정하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "organize-downloads-folder": {
+    "file": "static/illustrations/organize-downloads-folder.webp",
+    "alt": "받은 문서를 용도에 따라 폴더와 임시 보관함으로 나눈 모습",
+    "caption": "받은 파일은 오래됐는지보다 다음에 어디서 쓸지를 기준으로 분류합니다.",
+    "after_heading": "설치 파일과 압축 파일은 따로 판단한다",
+    "width": 1536,
+    "height": 1024
+  },
+  "weekly-work-review": {
+    "file": "static/illustrations/weekly-work-review.webp",
+    "alt": "한 주의 기록과 다음 주에 바꿀 행동을 모은 노트",
+    "caption": "기록에서 반복되는 막힘을 찾고, 다음 주에 바꿀 행동 하나로 연결합니다.",
+    "after_heading": "문제마다 내가 바꿀 수 있는 조건을 찾으세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "reusable-document-templates": {
+    "file": "static/illustrations/reusable-document-templates.webp",
+    "alt": "원본 문서의 같은 틀을 복사해 내용을 채운 두 장의 문서",
+    "caption": "반복되는 질문은 틀로 남기고, 매번 달라지는 내용만 새로 채웁니다.",
+    "after_heading": "입력할 내용과 작성 안내를 구분하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "organize-screenshots": {
+    "file": "static/illustrations/organize-screenshots.webp",
+    "alt": "저장한 화면 이미지에 메모를 붙이고 확인하는 모습",
+    "caption": "캡처한 이유와 다시 사용할 상황을 함께 남겨 두세요.",
+    "after_heading": "남길 이미지에는 맥락과 개인정보를 확인한다",
+    "width": 1536,
+    "height": 1024
+  },
+  "three-priorities-a-day": {
+    "file": "static/illustrations/three-priorities-a-day.webp",
+    "alt": "긴 할 일 목록에서 따로 고른 세 개의 주요 작업",
+    "caption": "하루의 중요한 일 세 개는 전체 목록에서 따로 고른 완료 가능한 결과입니다.",
+    "after_heading": "프로젝트 이름을 오늘 끝낼 결과로 바꾸세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "share-links-with-context": {
+    "file": "static/illustrations/share-links-with-context.webp",
+    "alt": "연결 고리에 목적을 적을 메모가 붙어 있는 모습",
+    "caption": "링크에 읽을 위치와 공유 목적을 붙이면 받는 사람의 다음 행동이 분명해집니다.",
+    "after_heading": "읽을 위치와 이유를 짧게 안내하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "bookmarks-for-projects": {
+    "file": "static/illustrations/bookmarks-for-projects.webp",
+    "alt": "프로젝트 폴더별로 모아 둔 북마크 카드",
+    "caption": "북마크는 사용할 일과 다시 찾을 이유를 기준으로 묶어 둡니다.",
+    "after_heading": "링크를 열기 전에도 쓰임을 알 수 있게 한다",
+    "width": 1536,
+    "height": 1024
+  },
+  "focus-time-on-calendar": {
+    "file": "static/illustrations/focus-time-on-calendar.webp",
+    "alt": "빈 여유를 남기고 작업 시간을 배치한 달력",
+    "caption": "지킬 수 있는 시간대에 작업을 배치하고, 조정할 여유도 남겨 둡니다.",
+    "after_heading": "길이보다 실제로 지킬 수 있는 배치를 고르세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "learn-shortcuts-gradually": {
+    "file": "static/illustrations/learn-shortcuts-gradually.webp",
+    "alt": "두 개의 키만 강조한 키보드와 연습 표시",
+    "caption": "자주 반복하는 동작 하나를 골라 작업하는 자리에서 익혀 보세요.",
+    "after_heading": "작업하는 자리에서 짧게 연습하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "archive-or-delete-documents": {
+    "file": "static/illustrations/archive-or-delete-documents.webp",
+    "alt": "문서를 살핀 뒤 보관 상자와 확인 대기함으로 나누는 모습",
+    "caption": "현재 쓰지 않는 자료도 보관할 근거가 있는지 먼저 확인합니다.",
+    "after_heading": "보관할 문서는 나중에 읽을 수 있게 남긴다",
+    "width": 1536,
+    "height": 1024
+  },
+  "meeting-notes-decisions-actions": {
+    "file": "static/illustrations/meeting-notes-decisions-actions.webp",
+    "alt": "회의의 결정 카드에서 담당자와 기한이 있는 실행 카드로 이어지는 모습",
+    "caption": "확정한 결정과 실행할 일을 나누고, 실행 항목에는 담당자와 기한을 붙입니다.",
+    "after_heading": "실행 항목에는 결과물과 책임자를 적으세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "choose-tools-by-workflow": {
+    "file": "static/illustrations/choose-tools-by-workflow.webp",
+    "alt": "자료에서 결과물로 이어지는 흐름에 맞춰 고른 도구 블록",
+    "caption": "도구는 기능의 수보다 실제 업무의 시작과 결과에 맞춰 비교합니다.",
+    "after_heading": "같은 작은 업무로 후보를 비교하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "weekly-digital-reset": {
+    "file": "static/illustrations/weekly-digital-reset.webp",
+    "alt": "파일·이미지·진행 중인 작업을 짧게 점검하는 정리 공간",
+    "caption": "매주 반복할 범위를 작게 정하고 다음 주의 첫 행동까지 연결합니다.",
+    "after_heading": "반복되는 세 가지 동작으로 범위를 제한한다",
+    "width": 1536,
+    "height": 1024
+  },
+  "end-of-day-work-routine": {
+    "file": "static/illustrations/end-of-day-work-routine.webp",
+    "alt": "다음 작업을 표시한 노트와 정리된 퇴근 전 책상",
+    "caption": "남은 일을 모두 끝내기보다 다음에 바로 시작할 위치를 남깁니다.",
+    "after_heading": "내일의 첫 행동은 바로 시작할 만큼 작게 쓰세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "notification-rules": {
+    "file": "static/illustrations/notification-rules.webp",
+    "alt": "즉시 확인할 알림과 나중에 볼 알림을 나눈 모습",
+    "caption": "즉시 대응할 연락과 정해진 시간에 확인할 정보를 구분합니다.",
+    "after_heading": "확인 시간과 예외 연락 경로를 함께 정하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "desktop-shortcut-audit": {
+    "file": "static/illustrations/desktop-shortcut-audit.webp",
+    "alt": "바탕화면의 연결 아이콘에서 실제 폴더로 이어지는 화살표",
+    "caption": "바로가기는 자료로 가는 입구이므로 삭제 전 원본 위치를 확인합니다.",
+    "after_heading": "매일 필요한 입구만 남기세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "write-handover-notes": {
+    "file": "static/illustrations/write-handover-notes.webp",
+    "alt": "현재 기록에서 다음 행동과 자료 접근으로 이어지는 인수인계 묶음",
+    "caption": "현재 상태뿐 아니라 다음 행동과 자료를 여는 조건을 함께 남깁니다.",
+    "after_heading": "다음 행동에는 조건과 기한을 붙이세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "check-pdf-before-sending": {
+    "file": "static/illustrations/check-pdf-before-sending.webp",
+    "alt": "전달할 문서의 페이지와 내용을 확대해 확인하는 모습",
+    "caption": "변환된 파일을 직접 열어 페이지와 읽기 상태를 확인한 뒤 전달합니다.",
+    "after_heading": "전달할 정보만 남았는지 살펴보세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "verify-scanned-documents": {
+    "file": "static/illustrations/check-pdf-before-sending.webp",
+    "alt": "저장된 문서의 페이지와 읽기 상태를 확인하는 모습",
+    "caption": "스캔한 파일을 열어 페이지가 빠지지 않았는지, 필요한 내용이 읽히는지 확인합니다.",
+    "after_heading": "중요한 글자는 확대해서 읽으세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "split-large-tasks": {
+    "file": "static/illustrations/choose-tools-by-workflow.webp",
+    "alt": "시작 자료에서 결과물로 이어지는 작은 작업 단계",
+    "caption": "큰일을 작은 결과로 나누고 앞뒤 작업이 이어지는 조건을 확인합니다.",
+    "after_heading": "행동과 결과가 함께 보이게 나누세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "spreadsheet-input-rules": {
+    "file": "static/illustrations/spreadsheet-input-rules.webp",
+    "alt": "열별로 같은 종류의 값을 넣고 다른 입력 값은 따로 확인하는 표",
+    "caption": "각 열의 의미와 날짜·상태 같은 입력 형식을 먼저 맞춘 뒤 값을 확인합니다.",
+    "after_heading": "날짜와 상태는 같은 방식으로 입력하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "separate-personal-work-files": {
+    "file": "static/illustrations/organize-work-folders.webp",
+    "alt": "개인 자료와 업무 자료를 서로 다른 위치로 나눠 두는 폴더",
+    "caption": "자료의 소유 기준에 맞춰 저장 위치를 나누고 계정도 함께 확인합니다.",
+    "after_heading": "폴더와 로그인 계정을 같이 확인하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "plan-backward-from-deadline": {
+    "file": "static/illustrations/focus-time-on-calendar.webp",
+    "alt": "작업과 검토 시간을 나누어 배치한 달력",
+    "caption": "전달일에서 거꾸로 검토와 수정 시간을 배치합니다.",
+    "after_heading": "검토와 수정 단계를 거꾸로 놓으세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "document-headings-and-outline": {
+    "file": "static/illustrations/reusable-document-templates.webp",
+    "alt": "같은 구조로 정리된 문서의 구간",
+    "caption": "문서의 반복되는 구조를 정하고 각 구간이 답할 질문을 나눕니다.",
+    "after_heading": "제목 단계와 모양을 구분하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "organize-photos-by-event": {
+    "file": "static/illustrations/organize-screenshots.webp",
+    "alt": "여러 이미지에 맥락을 남길 메모를 붙인 모습",
+    "caption": "이미지는 어떤 행사와 상황의 기록인지 함께 남겨 둡니다.",
+    "after_heading": "촬영 순서와 중복은 원본을 보며 판단하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "communicate-schedule-changes": {
+    "file": "static/illustrations/focus-time-on-calendar.webp",
+    "alt": "일정 블록을 옮길 수 있도록 여유를 둔 달력",
+    "caption": "바뀐 시각과 연관된 준비 일정을 함께 확인합니다.",
+    "after_heading": "연관된 준비와 마감도 살펴보세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "choose-comparison-table-criteria": {
+    "file": "static/illustrations/choose-tools-by-workflow.webp",
+    "alt": "실제 작업 흐름 옆에 놓고 비교하는 도구 후보",
+    "caption": "비교 기준은 실제로 끝내려는 작업에서 출발합니다.",
+    "after_heading": "같은 질문을 모든 후보에 적용하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "external-drive-inventory": {
+    "file": "static/illustrations/external-drive-inventory.webp",
+    "alt": "기기별 표식과 자료 목록을 나란히 놓은 두 개의 외장 저장장치",
+    "caption": "장치마다 구분할 이름과 자료 범위, 마지막 확인 시점을 함께 기록합니다.",
+    "after_heading": "세부 파일보다 자료의 범위를 기록하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "write-actionable-review-comments": {
+    "file": "static/illustrations/check-pdf-before-sending.webp",
+    "alt": "문서의 특정 부분을 확대해서 확인하는 모습",
+    "caption": "검토 의견에는 확인한 위치와 바뀌어야 할 내용을 구체적으로 남깁니다.",
+    "after_heading": "반드시 고칠 내용과 제안을 나누세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "start-with-one-notes-app": {
+    "file": "static/illustrations/choose-tools-by-workflow.webp",
+    "alt": "자료가 들어와 결과로 이어지는 작은 기록 흐름",
+    "caption": "도구를 옮기기 전에 새 메모가 들어오는 흐름부터 작게 시험합니다.",
+    "after_heading": "대표 메모로 실제 흐름을 시험하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "verify-duplicate-files-before-delete": {
+    "file": "static/illustrations/archive-or-delete-documents.webp",
+    "alt": "문서를 바로 지우지 않고 따로 살펴보는 모습",
+    "caption": "이름이 비슷한 파일은 삭제 전에 내용과 사용 위치를 확인합니다.",
+    "after_heading": "삭제 후보를 따로 모아두세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "prepare-meeting-agenda-for-decision": {
+    "file": "static/illustrations/meeting-notes-decisions-actions.webp",
+    "alt": "회의에서 정할 결정과 이어질 실행을 분리한 노트",
+    "caption": "회의 전에 결정할 질문과 필요한 자료를 모아 둡니다.",
+    "after_heading": "선택에 필요한 자료만 먼저 공유하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "check-before-online-form-submission": {
+    "file": "static/illustrations/check-pdf-before-sending.webp",
+    "alt": "제출할 자료를 전달 전에 검토하는 모습",
+    "caption": "첨부 자료와 제출 조건을 확인한 뒤 접수 상태까지 점검합니다.",
+    "after_heading": "저장과 수정 가능 여부를 확인하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "review-old-shared-links": {
+    "file": "static/illustrations/share-links-with-context.webp",
+    "alt": "연결 고리와 그 목적을 확인할 메모",
+    "caption": "오래된 공유 링크는 사용 목적과 접근 범위를 다시 확인합니다.",
+    "after_heading": "종료와 축소를 나누어 판단하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "agree-work-request-scope": {
+    "file": "static/illustrations/choose-tools-by-workflow.webp",
+    "alt": "시작 자료와 완료 결과 사이에 필요한 단계를 놓은 작업 흐름",
+    "caption": "요청의 시작 조건과 완료 결과를 정하고, 그 사이에 포함할 작업 범위를 맞춥니다.",
+    "after_heading": "포함 범위와 제외 범위를 함께 적으세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "clean-copied-table-format": {
+    "file": "static/illustrations/spreadsheet-input-rules.webp",
+    "alt": "열별 값이 정리된 표와 그 옆에 놓인 복제 행",
+    "caption": "표를 옮겼다면 모양을 고치기 전에 숫자·날짜·열의 의미가 유지됐는지 확인합니다.",
+    "after_heading": "숫자와 날짜가 바뀌지 않았는지 보세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "clean-personal-contact-list": {
+    "file": "static/illustrations/clean-personal-contact-list.webp",
+    "alt": "같은 인물 모양의 연락처를 업무와 개인 맥락 표식으로 구분하는 모습",
+    "caption": "이름이 같더라도 저장 계정과 관계 맥락을 확인한 뒤 정보를 정리합니다.",
+    "after_heading": "병합 전에 저장 계정을 확인하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "report-progress-before-completion": {
+    "file": "static/illustrations/write-handover-notes.webp",
+    "alt": "현재 기록과 다음에 필요한 행동을 연결한 문서 묶음",
+    "caption": "현재 결과와 막힌 조건, 필요한 판단을 연결해 전달합니다.",
+    "after_heading": "영향과 요청을 분리해서 쓰세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "prepare-materials-for-video-meeting": {
+    "file": "static/illustrations/check-pdf-before-sending.webp",
+    "alt": "확대해서 읽기 상태를 점검하는 전달용 문서",
+    "caption": "자료는 전달받거나 공유한 화면에서도 읽히는지 확인합니다.",
+    "after_heading": "공유 범위와 권한을 미리 확인하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "inventory-digital-subscriptions": {
+    "file": "static/illustrations/focus-time-on-calendar.webp",
+    "alt": "갱신을 검토할 시점을 달력에 남기는 모습",
+    "caption": "구독 갱신일 전에 실제 사용 여부를 확인할 시간을 남깁니다.",
+    "after_heading": "사용 여부와 해지 영향을 함께 보세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "adjust-plan-for-urgent-interruption": {
+    "file": "static/illustrations/three-priorities-a-day.webp",
+    "alt": "전체 업무에서 다시 고르는 오늘의 주요 작업",
+    "caption": "급한 일이 생기면 기존에 선택한 작업과 마감도 함께 조정합니다.",
+    "after_heading": "기존 일정에 생기는 영향을 보여주세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "arrange-workspace-for-task-context": {
+    "file": "static/illustrations/arrange-workspace-for-task-context.webp",
+    "alt": "하나의 화면에서 참고 자료와 작성할 문서를 나란히 배치한 모습",
+    "caption": "동시에 봐야 할 참고 자료와 입력 공간을 구분해 화면 전환을 줄입니다.",
+    "after_heading": "참고와 입력 위치를 구분하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "record-reference-source-context": {
+    "file": "static/illustrations/share-links-with-context.webp",
+    "alt": "참고 링크에 확인할 위치와 맥락을 남기는 메모",
+    "caption": "자료의 주소와 함께 주장, 확인 시점, 인용 맥락을 남깁니다.",
+    "after_heading": "인용과 해석을 구분해서 남기세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "resolve-collaborative-document-feedback": {
+    "file": "static/illustrations/check-pdf-before-sending.webp",
+    "alt": "문서의 특정 구간을 살펴보는 검토 도구",
+    "caption": "의견이 나온 위치 가까이에 반영 결과와 판단 이유를 남깁니다.",
+    "after_heading": "반영 결과와 이유를 가까이 남기세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "fact-check-ai-generated-draft": {
+    "file": "static/illustrations/check-pdf-before-sending.webp",
+    "alt": "문서 내용을 확대해 근거를 확인하는 모습",
+    "caption": "문장이 자연스러워 보여도 사실과 인용은 원자료에 대조합니다.",
+    "after_heading": "링크와 인용은 원문을 직접 대조하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "process-temporary-notes": {
+    "file": "static/illustrations/organize-downloads-folder.webp",
+    "alt": "들어온 기록을 다음 쓰임에 맞춰 나누는 보관함",
+    "caption": "임시 기록은 다음 행동과 참고 자료로 구분한 뒤 보관 여부를 정합니다.",
+    "after_heading": "행동과 참고 자료를 갈라 놓으세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "compare-planned-actual-time": {
+    "file": "static/illustrations/weekly-work-review.webp",
+    "alt": "시간과 작업 기록을 함께 살펴보는 회고 노트",
+    "caption": "실제 작업과 대기 시간을 살펴보고 다음 계획의 한 가지를 조정합니다.",
+    "after_heading": "작업과 대기를 가볍게 구분하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "keep-shared-document-source": {
+    "file": "static/illustrations/reusable-document-templates.webp",
+    "alt": "따로 보존한 원본과 그 구조를 따른 사본",
+    "caption": "어디를 수정해야 하는지 기준 위치를 정하고 원본과 사본을 구분합니다.",
+    "after_heading": "사본에는 상태와 기준 시점을 남기세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "record-paper-receipts": {
+    "file": "static/illustrations/check-pdf-before-sending.webp",
+    "alt": "보관할 문서의 세부 내용을 확대해 확인하는 모습",
+    "caption": "영수증을 디지털로 남겼다면 필요한 항목이 읽히는지 먼저 확인합니다.",
+    "after_heading": "지출 기록과 이미지를 연결하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "respond-to-additional-requests": {
+    "file": "static/illustrations/three-priorities-a-day.webp",
+    "alt": "추가 요청이 들어왔을 때 다시 살펴볼 주요 작업 카드",
+    "caption": "새 요청이 들어오면 기존 작업의 우선순위와 완료 조건도 함께 조정합니다.",
+    "after_heading": "기존 약속과 바꿀 항목을 보여 주세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "name-spreadsheet-columns": {
+    "file": "static/illustrations/spreadsheet-input-rules.webp",
+    "alt": "열마다 구분 표식과 같은 종류의 값을 담은 표",
+    "caption": "열 제목에는 대상과 기준을 담고, 실제 입력 예시로 같은 뜻인지 확인합니다.",
+    "after_heading": "한 열에는 같은 종류의 값을 넣으세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "handover-finished-project-files": {
+    "file": "static/illustrations/write-handover-notes.webp",
+    "alt": "자료와 다음 행동, 접근 조건을 묶어 넘기는 문서",
+    "caption": "넘겨받는 사람이 결과물과 작업 기록을 구분하고 실제로 열 수 있어야 합니다.",
+    "after_heading": "처음 열어 볼 안내 문서를 두세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "share-work-status-clearly": {
+    "file": "static/illustrations/write-handover-notes.webp",
+    "alt": "현재 상태에서 다음 행동으로 연결한 업무 기록",
+    "caption": "완료와 진행 중인 일, 필요한 도움을 구분해 공유합니다.",
+    "after_heading": "막힌 이유에는 요청을 붙이세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "read-chart-axes-and-units": {
+    "file": "static/illustrations/read-chart-axes-and-units.webp",
+    "alt": "막대의 높이보다 먼저 축의 시작점과 단위 표시를 확대해 보는 모습",
+    "caption": "추세를 해석하기 전에 축의 범위, 단위와 비교 조건부터 확인합니다.",
+    "after_heading": "숫자의 단위와 분모를 확인하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "maintain-account-inventory": {
+    "file": "static/illustrations/maintain-account-inventory.webp",
+    "alt": "서비스 계정 카드 목록과 따로 분리해 둔 잠금 보관함",
+    "caption": "계정의 용도와 접근 수단을 목록에 남기고, 비밀번호와 복구 코드는 따로 관리합니다.",
+    "after_heading": "비밀 정보와 위치 안내를 분리하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "separate-breaks-from-work": {
+    "file": "static/illustrations/end-of-day-work-routine.webp",
+    "alt": "다시 시작할 위치를 표시해 둔 노트와 닫힌 기기",
+    "caption": "쉬기 전에 중단한 위치와 복귀 후 첫 행동을 짧게 남깁니다.",
+    "after_heading": "쉬는 동안 볼 알림을 정하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "check-web-information-dates": {
+    "file": "static/illustrations/weekly-work-review.webp",
+    "alt": "달력과 기록을 함께 살펴보는 노트",
+    "caption": "정보의 게시 시점과 적용 조건을 나누고 확인한 날짜를 남깁니다.",
+    "after_heading": "바뀌기 쉬운 정보는 원문으로 가세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "search-older-files-with-clues": {
+    "file": "static/illustrations/name-files-consistently.webp",
+    "alt": "날짜와 목적 같은 단서를 일정한 순서로 모은 문서 카드",
+    "caption": "정확한 이름이 기억나지 않으면 시기와 목적 같은 단서부터 나눠 봅니다.",
+    "after_heading": "범위와 검색어를 번갈아 조정하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "checklists-for-small-mistakes": {
+    "file": "static/illustrations/check-pdf-before-sending.webp",
+    "alt": "전달 전에 문서와 확인 표시를 점검하는 모습",
+    "caption": "실수하기 쉬운 항목을 실제 확인할 시점과 연결합니다.",
+    "after_heading": "눈으로 확인할 수 있게 쓰세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "choose-simple-worklog-automation": {
+    "file": "static/illustrations/choose-tools-by-workflow.webp",
+    "alt": "기록이 들어오고 결과로 이어지는 작은 연결 흐름",
+    "caption": "자동화는 반복이 분명한 작은 연결부터 시험하고 수동으로 돌아갈 경로를 남깁니다.",
+    "after_heading": "반복이 분명한 작은 연결을 고르세요",
+    "width": 1536,
+    "height": 1024
+  }
+}

@@ -52,8 +52,66 @@ def diagram(post):
         if i<2:text+=f'<path d="M{x+266} 273h26m-8-8 8 8-8 8" fill="none" stroke="#183e37" stroke-width="3"/>'
     return text+'</g></svg>'
 
+def body_chunks(body):
+    chunks=[]
+    for section in re.split(r'(?m)^(## [^\n]*)(?:\n|$)',body.strip()):
+        chunks.extend(block for block in section.strip('\n').split('\n\n') if block)
+    return chunks
+
 def prose(body):
-    return ''.join('<h2>'+esc(b[3:])+'</h2>' if b.startswith('## ') else '<p>'+esc(b).replace('\n','<br>')+'</p>' for b in body.strip().split('\n\n'))
+    return ''.join('<h2>'+esc(b[3:])+'</h2>' if b.startswith('## ') else '<p>'+esc(b).replace('\n','<br>')+'</p>' for b in body_chunks(body))
+
+def illustration_position(chunks,after_heading=None,diagram_position=None):
+    if after_heading:
+        heading=next((i for i,chunk in enumerate(chunks) if chunk.startswith('## ') and chunk[3:].strip()==after_heading),None)
+        if heading is None:
+            raise ValueError(f'Illustration heading not found: {after_heading}')
+        end=next((i for i in range(heading+1,len(chunks)) if chunks[i].startswith('## ')),len(chunks))
+        if end==heading+1:
+            raise ValueError(f'Illustration section has no paragraph: {after_heading}')
+        return end
+    positions=[i+1 for i,chunk in enumerate(chunks[:-1]) if not chunk.startswith('## ') and i+1!=diagram_position]
+    later_positions=[i for i in positions if diagram_position is not None and i>diagram_position]
+    if later_positions:
+        positions=later_positions
+    if not positions:
+        positions=[i+1 for i,chunk in enumerate(chunks) if not chunk.startswith('## ')]
+    return min(positions,key=lambda i:abs(i-len(chunks)/2)) if positions else len(chunks)
+
+def load_illustrations(posts):
+    path=ROOT/'content/illustrations.json'
+    if not path.exists():
+        return {}
+    illustrations=json.loads(path.read_text())
+    if not isinstance(illustrations,dict):
+        raise ValueError('content/illustrations.json must map article slugs to image details')
+    published={post['slug']:post for post in posts}
+    docs=(ROOT/'docs').resolve()
+    for slug,details in illustrations.items():
+        if not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*',slug) or not isinstance(details,dict):
+            raise ValueError(f'Invalid illustration entry: {slug}')
+        for field in ['file','alt','caption']:
+            if not isinstance(details.get(field),str) or not details[field].strip():
+                raise ValueError(f'Illustration {slug} needs a nonempty {field}')
+        file=details['file'];asset=(docs/file).resolve()
+        if Path(file).is_absolute() or '..' in Path(file).parts or '\\' in file or not re.search(r'\.(?:webp|png|jpe?g|avif)$',file,re.I) or not asset.is_relative_to(docs):
+            raise ValueError(f'Illustration {slug} needs a local image path inside docs: {file}')
+        if not asset.is_file():
+            raise ValueError(f'Illustration asset is missing for {slug}: docs/{file}')
+        heading=details.get('after_heading')
+        if heading is not None and (not isinstance(heading,str) or not heading.strip()):
+            raise ValueError(f'Illustration {slug} has an invalid after_heading')
+        if ('width' in details)!=('height' in details) or any(type(details.get(field,default)) is not int or details.get(field,default)<=0 for field,default in [('width',1536),('height',1024)]):
+            raise ValueError(f'Illustration {slug} needs positive integer width and height together')
+        if slug in published and heading:
+            try:
+                illustration_position(body_chunks(published[slug]['body']),heading)
+            except ValueError as error:
+                raise ValueError(f'Illustration {slug}: {error}') from error
+    return illustrations
+
+def illustration_figure(details):
+    return f'<figure class="post-figure article-illustration"><img src="{PREFIX}{esc(details["file"])}" alt="{esc(details["alt"])}" width="{details.get("width",1536)}" height="{details.get("height",1024)}" loading="lazy" decoding="async"><figcaption>{esc(details["caption"])}</figcaption></figure>'
 
 def shell(title,body,description='',article=None):
     head=''
@@ -76,12 +134,19 @@ def home(posts,views,now):
     body=hero+f'''<section id="articles"><div class="section-head"><div><span class="eyebrow">THE JOURNAL</span><h2>일상을 바꾸는 읽을거리</h2></div><form id="search-form" class="search"><input id="search-input" name="q" aria-label="글 검색" placeholder="궁금한 도구나 습관 검색"><button>검색</button></form></div><div class="categories" id="category-tabs">{tabs}</div><div class="browse-toolbar"><div class="browse-controls"><label class="sort-control" for="sort-select">정렬 <select id="sort-select"><option value="latest">최신순</option><option value="popular">인기순</option></select></label><label class="today-control"><input id="today-filter" type="checkbox"> 오늘 올라온 글만</label></div><span id="result-count" role="status">{len(posts)}편의 글</span></div><p id="views-status" class="views-status">조회수 집계 준비 중입니다.</p><div class="articles" id="article-list">{''.join(card(p,views,today) for p in ordered)}</div><p id="empty-state" class="empty" role="status" hidden>조건에 맞는 글이 없습니다. 검색어나 분류를 바꿔 보세요.</p></section><aside class="callout"><span>한 번에 하나씩</span><h2>좋은 도구보다 중요한 건,<br>나에게 맞는 사용법입니다.</h2><p>도구생활은 새로운 앱을 더하는 대신, 이미 가진 도구를 잘 쓰는 방법을 이야기합니다.</p></aside><script id="posts-data" type="application/json">{dump([public(p) for p in posts])}</script><script id="view-data" type="application/json">{dump(views)}</script>'''
     return shell('디지털 일상을 가볍게',body)
 
-def article(post,posts,views):
+def article(post,posts,views,illustration=None):
     date=day(post);count=views.get('counts',{}).get(post['slug'],0);labels=' → '.join(post['diagram_labels'])
     art=''
-    if post['slug']=='organize-work-folders':art=f'<figure class="post-figure"><img src="{PREFIX}static/organize-folders.webp" alt="진행 중인 자료와 보관 자료를 두 서류함으로 나눈 그림" width="1536" height="1024" loading="lazy"><figcaption>진행 자료와 보관 자료의 자리를 나눠 봅니다.</figcaption></figure>'
-    chunks=post['body'].split('\n\n');pivot=next((i for i in range(2,len(chunks)) if chunks[i].startswith('## ')),len(chunks))
-    text=prose('\n\n'.join(chunks[:pivot]))+f'<figure class="post-figure"><img src="{figure(post)}" alt="{esc(labels)}" width="960" height="480" loading="lazy"><figcaption>{esc(labels)}</figcaption></figure>'+prose('\n\n'.join(chunks[pivot:]))
+    if post['slug']=='organize-work-folders' and not illustration:art=f'<figure class="post-figure"><img src="{PREFIX}static/organize-folders.webp" alt="진행 중인 자료와 보관 자료를 두 서류함으로 나눈 그림" width="1536" height="1024" loading="lazy"><figcaption>진행 자료와 보관 자료의 자리를 나눠 봅니다.</figcaption></figure>'
+    chunks=body_chunks(post['body']);pivot=next((i for i in range(2,len(chunks)) if chunks[i].startswith('## ')),len(chunks))
+    diagram_html=f'<figure class="post-figure"><img src="{figure(post)}" alt="{esc(labels)}" width="960" height="480" loading="lazy"><figcaption>{esc(labels)}</figcaption></figure>'
+    image_position=illustration_position(chunks,illustration.get('after_heading'),pivot) if illustration else None
+    parts=[]
+    for position,chunk in enumerate(chunks,1):
+        parts.append(prose(chunk))
+        if position==pivot:parts.append(diagram_html)
+        if position==image_position:parts.append(illustration_figure(illustration))
+    text=''.join(parts)
     related=[p for p in sorted(posts,key=order,reverse=True) if p['category']==post['category'] and p['slug']!=post['slug']][:3]
     links=''.join(f'<li><a href="{PREFIX}post/{p["slug"]}/">{esc(p["title"])}</a></li>' for p in related)
     body=f'''<article class="reading"><a href="{PREFIX}#articles">← 전체 글</a><span class="eyebrow">{esc(post['category'])}</span><h1>{esc(post['title'])}</h1><p class="lead">{esc(post['summary'])}</p><div class="meta reading-meta"><span>도구생활 편집부 · {date} · {minutes(post)}분 읽기</span><span class="new-badge" data-date="{date}" hidden>NEW</span><span class="view-count">조회 {count:,} <small>(매시간 반영)</small></span></div>{art}<div class="prose">{text}</div><div class="article-counter"><img data-counter-src="https://hits.sh/ssy671.github.io/dogu-life-preview/post/{post['slug']}.svg?label=views&amp;color=183e37" alt="이 글의 누적 조회수" width="92" height="20" referrerpolicy="no-referrer"><p>조회수는 외부 서비스로 집계하며 새로고침·봇 요청이 포함될 수 있습니다.</p></div><aside class="related-posts"><h2>함께 읽으면 좋은 글</h2><ul>{links}</ul></aside></article>'''
@@ -94,10 +159,11 @@ def build(now=None):
         assert re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*',p['slug'])
         assert p['category'] in CATEGORIES and len(p['diagram_labels'])==3
         assert datetime.fromisoformat(p['published_at'])<=now,'Future article cannot be published'
+    illustrations=load_illustrations(posts)
     diagrams=docs/'static/diagrams';diagrams.mkdir(parents=True,exist_ok=True)
     for p in posts:
         (diagrams/(p['slug']+'.svg')).write_text(diagram(p))
-        target=docs/'post'/p['slug']/'index.html';target.parent.mkdir(parents=True,exist_ok=True);target.write_text(article(p,posts,views))
+        target=docs/'post'/p['slug']/'index.html';target.parent.mkdir(parents=True,exist_ok=True);target.write_text(article(p,posts,views,illustrations.get(p['slug'])))
     (docs/'index.html').write_text(home(posts,views,now))
     (docs/'data').mkdir(exist_ok=True)
     (docs/'data/posts.json').write_text(dump([public(p) for p in posts]))

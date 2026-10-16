@@ -48,6 +48,8 @@ main, header, footer, .hero > *, .section-head > *, .card-copy { min-width: 0; }
 .reading figure, .post-figure { margin: 32px 0; }
 .reading figure img, .reading figure svg, .post-figure img, .post-figure svg { display: block; width: 100%; height: auto; max-width: 100%; border-radius: 10px; }
 .reading figcaption, .post-figure figcaption { color: var(--muted); font-size: 12px; line-height: 1.8; margin-top: 10px; }
+.article-illustration img { background: #edf2e7; }
+.article-illustration figcaption { max-width: 62ch; }
 .prose a { text-decoration: underline; text-underline-offset: 3px; }
 .prose ul, .prose ol { padding-left: 24px; }
 .prose li { margin-bottom: 8px; }

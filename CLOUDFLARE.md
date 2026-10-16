@@ -25,6 +25,7 @@ Cloudflare Pages 무료 요금제의 월 빌드 한도 때문에 매시간 변�
 
 ```text
 content/posts.json
+content/illustrations.json
 scripts/build.py
 docs/static/**
 docs/about/**
@@ -35,7 +36,7 @@ docs/contact/**
 
 ## 자동 발행과 조회수
 
-매일 오전 9시(한국 시간)에 기존 GitHub Actions가 검토 글 세 편을 발행합니다. `content/posts.json`이 변경되면 연결된 Cloudflare 프로젝트가 새 글을 빌드합니다. 현재 검토 대기 원고는 45편(15일치)이며 소진 전에 보충해야 합니다.
+매일 오전 9시(한국 시간)에 기존 GitHub Actions가 검토 글 세 편을 발행합니다. `content/posts.json`이 변경되면 연결된 Cloudflare 프로젝트가 새 글을 빌드합니다. 검토 대기 원고 수는 `content/queue.json`에서 확인하고 소진 전에 보충해야 합니다.
 
 조회수 수집은 기존 GitHub Actions에서 매시간 수행합니다. Cloudflare 페이지는 브라우저에서 공개된 조회수 스냅샷을 별도로 읽으므로 조회수 갱신만을 위한 사이트 재빌드가 필요하지 않습니다. 실패하면 빌드에 포함된 마지막 값으로 정렬합니다. 카운터 식별자는 기존 것을 유지해 조회수 이력을 보존합니다.
 
