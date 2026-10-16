@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-15T23:43:26.951170Z",
+  "updated_at": "2026-10-16T01:12:56.669952Z",
   "counts": {
     "check-email-in-windows": 0,
     "name-files-consistently": 0,
@@ -18,6 +18,9 @@
     "choose-tools-by-workflow": 0,
     "weekly-digital-reset": 1,
     "end-of-day-work-routine": 3,
-    "notification-rules": 4
+    "notification-rules": 4,
+    "write-handover-notes": 0,
+    "check-pdf-before-sending": 0,
+    "desktop-shortcut-audit": 0
   }
 }
