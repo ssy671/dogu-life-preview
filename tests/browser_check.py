@@ -1,29 +1,44 @@
 """Exercise real sorting/filtering in a browser on the CI runner, never count test visits."""
-import json,re,threading
+import atexit,json,os,re,threading,urllib.request
 from datetime import datetime
 from functools import partial
 from http.server import SimpleHTTPRequestHandler,ThreadingHTTPServer
 from pathlib import Path
+from urllib.parse import urlsplit
 from zoneinfo import ZoneInfo
 from playwright.sync_api import sync_playwright,expect
 ROOT=Path(__file__).resolve().parents[1]
-PREFIX='/dogu-life-preview/'
-class Handler(SimpleHTTPRequestHandler):
- def do_GET(self):
-  if self.path.startswith(PREFIX):self.path='/'+self.path[len(PREFIX):]
-  return super().do_GET()
- def log_message(self,*args):pass
-server=ThreadingHTTPServer(('127.0.0.1',0),partial(Handler,directory=str(ROOT/'docs')))
-threading.Thread(target=server.serve_forever,daemon=True).start()
-base=f'http://127.0.0.1:{server.server_port}{PREFIX}'
-posts=json.loads((ROOT/'docs/data/posts.json').read_text())
+check_url=os.getenv('BLOG_CHECK_URL','').strip()
+if check_url:
+ base=check_url.rstrip('/')+'/'
+ PREFIX=urlsplit(base).path
+ def fetch(path):
+  request=urllib.request.Request(base+path,headers={'Cache-Control':'no-cache','User-Agent':'Dogu-Life-Browser-Check/3.0'})
+  with urllib.request.urlopen(request,timeout=30) as response:
+   return response.read().decode('utf-8')
+ posts=json.loads(fetch('data/posts.json'))
+ home=fetch('?test=1')
+else:
+ PREFIX='/dogu-life-preview/'
+ class Handler(SimpleHTTPRequestHandler):
+  def do_GET(self):
+   if self.path.startswith(PREFIX):self.path='/'+self.path[len(PREFIX):]
+   return super().do_GET()
+  def log_message(self,*args):pass
+ server=ThreadingHTTPServer(('127.0.0.1',0),partial(Handler,directory=str(ROOT/'docs')))
+ threading.Thread(target=server.serve_forever,daemon=True).start()
+ def close_server():server.shutdown();server.server_close()
+ atexit.register(close_server)
+ base=f'http://127.0.0.1:{server.server_port}{PREFIX}'
+ posts=json.loads((ROOT/'docs/data/posts.json').read_text())
+ home=(ROOT/'docs/index.html').read_text()
 manifest=ROOT/'content/illustrations.json'
 illustrations=json.loads(manifest.read_text()) if manifest.exists() else {}
 illustrated_post=next((post for post in posts if post['slug'] in illustrations),None)
 article_post=illustrated_post or posts[0]
 fixture={'updated_at':'2026-10-15T00:00:00Z','counts':{posts[0]['slug']:300,posts[1]['slug']:100}}
-home=(ROOT/'docs/index.html').read_text()
 home=re.sub(r'(<script id="view-data" type="application/json">).*?(</script>)',lambda m:m[1]+json.dumps(fixture)+m[2],home)
+home=re.sub(r'\sdata-views-source="[^"]*"',' data-views-source=""',home)
 def check_article(page,label):
  picture=page.locator('.post-figure img').last;picture.scroll_into_view_if_needed()
  page.wait_for_function("Array.from(document.querySelectorAll('.post-figure img')).every(i=>i.complete&&i.naturalWidth>0)")
@@ -49,8 +64,7 @@ def check_article(page,label):
  assert page.locator('[data-counter-src]').get_attribute('src') is None,'Test visits must not increment counters'
  Path('artifacts').mkdir(exist_ok=True)
  page.screenshot(path='artifacts/article-'+label+'.png',full_page=True)
-try:
- with sync_playwright() as p:
+with sync_playwright() as p:
   browser=p.chromium.launch()
   context=browser.new_context(viewport={'width':1440,'height':1000},timezone_id='Asia/Seoul')
   context.route('https://hits.sh/**',lambda route:route.abort())
@@ -89,5 +103,4 @@ try:
   expect(page.locator('#article-list article.card:visible').first).to_have_attribute('data-slug',posts[-1]['slug'])
   expect(page.locator('#article-list article.card:visible').first.locator('.view-count')).to_have_text('조회 777')
   browser.close()
- print('PASS: latest/popular sorting, combined filters, KST today, history, inline generated images decoded on desktop/mobile, article layout and remote view snapshots.')
-finally:server.shutdown();server.server_close()
+print(f'PASS: {base} assets, latest/popular sorting, combined filters, KST today, history, inline generated images decoded on desktop/mobile, article layout and remote view snapshots.')

@@ -1,8 +1,8 @@
-import json,time,urllib.request
+import json,os,time,urllib.request
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlsplit
-BASE='https://ssy671.github.io/dogu-life-preview/'
+BASE=os.getenv('BLOG_CHECK_URL','https://ssy671.github.io/dogu-life-preview/').strip().rstrip('/')+'/'
 ROOT=Path(__file__).resolve().parents[1]
 posts=json.loads((ROOT/'content/posts.json').read_text())
 manifest=ROOT/'content/illustrations.json'
@@ -52,7 +52,7 @@ for attempt in range(1,13):
      if path in article_images:
       parser=InlineImageParser();parser.feed(body)
       assert article_images[path] in parser.images,f'{path}: mapped illustration missing from article body'
-  print(f'PASS: homepage, sorting controls, data, {len(posts)} article pages, their SVG diagrams and {len(image_paths)} generated raster illustrations are live.')
+  print(f'PASS: {BASE} homepage, sorting controls, data, {len(posts)} article pages, their SVG diagrams and {len(image_paths)} generated raster illustrations are live.')
   break
  except Exception as e:
   print(f'Attempt {attempt}: {e}',flush=True)

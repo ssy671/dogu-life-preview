@@ -2,7 +2,7 @@ name: Check preview URL
 on:
   push:
     branches: [main]
-    paths: [.github/workflows/preview-check.yml, tests/browser_check.py]
+    paths: [.github/workflows/preview-check.yml, scripts/check_live.py, tests/browser_check.py]
   workflow_run:
     workflows: ["pages build and deployment", "Publish daily articles and refresh views"]
     types: [completed]
@@ -11,8 +11,19 @@ permissions:
   contents: read
 jobs:
   check:
+    name: Check ${{ matrix.site }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - site: github
+            url: https://ssy671.github.io/dogu-life-preview/
+          - site: pages
+            url: https://lifehint-daily.pages.dev/
+    env:
+      BLOG_CHECK_URL: ${{ matrix.url }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,6 +43,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: blog-screen-check
+          name: blog-screen-check-${{ matrix.site }}
           path: artifacts/
           retention-days: 3
