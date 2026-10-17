@@ -1,0 +1,66 @@
+name: Diagnose sitemap fetch
+on:
+  push:
+    branches: [diagnose-sitemap-fetch]
+    paths: [.github/workflows/sitemap-fetch-check.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Inspect direct HTTP responses and parse sitemap XML
+        run: |
+          python - <<'PY'
+          import json, urllib.request, urllib.error, xml.etree.ElementTree as ET
+          BASE='https://lifehint-daily.pages.dev'
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self,*args,**kwargs):return None
+          client=urllib.request.build_opener(NoRedirect)
+          agents={
+              'browser':'Mozilla/5.0',
+              'Googlebot':'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+              'Googlebot-mobile':'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+              'Google-InspectionTool':'Mozilla/5.0 (compatible; Google-InspectionTool/1.0;)',
+          }
+          errors=[]
+          for label,agent in agents.items():
+              for path in ['/sitemap.xml','/robots.txt']:
+                  request=urllib.request.Request(BASE+path,headers={'User-Agent':agent,'Cache-Control':'no-cache'})
+                  try:
+                      response=client.open(request,timeout=25)
+                  except urllib.error.HTTPError as error:
+                      response=error
+                  except Exception as error:
+                      print(json.dumps({'agent':label,'path':path,'error':str(error)}),flush=True)
+                      errors.append(label+' '+path+' connection');continue
+                  with response:
+                      payload=response.read()
+                      result={'agent':label,'path':path,'status':response.status,'final_url':response.geturl(),'headers':{name:response.headers.get(name) for name in ['Content-Type','Location','X-Robots-Tag','CF-Cache-Status','CF-Ray','Server','Content-Length']}}
+                  if result['status']!=200:
+                      result['sample']=payload[:200].decode('utf-8',errors='replace')
+                      errors.append(label+' '+path+' HTTP '+str(result['status']))
+                  elif path=='/sitemap.xml':
+                      try:
+                          root=ET.fromstring(payload)
+                          locations=root.findall('{http://www.sitemaps.org/schemas/sitemap/0.9}url/{http://www.sitemaps.org/schemas/sitemap/0.9}loc')
+                          result['root']=root.tag;result['url_count']=len(locations)
+                          assert root.tag=='{http://www.sitemaps.org/schemas/sitemap/0.9}urlset'
+                          assert locations and all(item.text.startswith(BASE+'/') for item in locations)
+                          result['xml']='valid'
+                      except Exception as error:
+                          result['xml_error']=str(error);result['sample']=payload[:200].decode('utf-8',errors='replace')
+                          errors.append(label+' sitemap XML')
+                  else:
+                      result['robots']=payload.decode('utf-8',errors='replace')
+                      if 'Disallow: /' in result['robots']:errors.append(label+' robots blocked')
+                  print(json.dumps(result,ensure_ascii=False),flush=True)
+          assert not errors,errors
+          print('PASS: direct 200, no redirects, valid sitemap XML and crawlable robots for all tested User-Agents.')
+          print('NOTE: this does not reproduce Google IP addresses or prove Google processing.')
+          PY
