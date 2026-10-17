@@ -92,7 +92,8 @@ def sync(posts_path=None, views_path=None, *, opener=urlopen, now=None) -> dict:
 
     A failed request never replaces an existing value. Even a successful zero
     or a 404 cannot erase a previously counted view. No successful responses
-    means no updated timestamp and no file write. Other stored slugs survive.
+    means no updated timestamp and no file write. Unchanged totals also retain
+    the original timestamp and bytes. Other stored slugs survive.
     """
     posts_path = Path(posts_path) if posts_path is not None else ROOT / "content/posts.json"
     views_path = Path(views_path) if views_path is not None else ROOT / "content/views.json"

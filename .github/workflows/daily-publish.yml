@@ -37,6 +37,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Load counters and deployment state without changing main
+        run: |
+          python - <<'PY'
+          from scripts.runtime_state import load
+          load()
+          PY
       - name: Release at most three reviewed articles
         id: release
         run: |
@@ -74,7 +80,9 @@ jobs:
           python - <<'PY'
           import os
           from scripts.automation import ROOT, record
+          from scripts.runtime_state import save
           assert record(ROOT, os.environ['EXPECTED_BUILD'])
+          save()
           PY
       - name: Build illustrated pages only when needed
         if: steps.plan.outputs.build == 'true'
@@ -86,7 +94,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add content
+          git add content/posts.json content/queue.json content/state.json
           if [ "$FULL_BUILD" = true ]; then git add docs; fi
           if ! git diff --cached --quiet; then
             python - <<'PY' > "$RUNNER_TEMP/publication-message.txt"
@@ -97,6 +105,12 @@ jobs:
             git commit -F "$RUNNER_TEMP/publication-message.txt"
             git push origin HEAD:main
           fi
+      - name: Save view changes without a site-source commit
+        run: |
+          python - <<'PY'
+          from scripts.runtime_state import save
+          save()
+          PY
       - uses: actions/upload-pages-artifact@v3
         if: steps.plan.outputs.build == 'true'
         with:
@@ -147,17 +161,13 @@ jobs:
           python - <<'PY'
           import os
           from scripts.automation import ROOT, record
+          from scripts.runtime_state import load, save
+          load()
           if not record(ROOT, os.environ['EXPECTED_BUILD'], verified=True):
               print('Newer render inputs found; the next queued run will deploy them.')
           else:
+              save()
               from scripts.automation import deployment_plan
               assert not deployment_plan(event='schedule')['build']
               print('PASS: unchanged scheduled runs now skip build, deploy, and browser checks.')
           PY
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add content/deployment.json
-          if ! git diff --cached --quiet; then
-            git commit -m '[skip ci] Record the verified site version'
-            git push origin HEAD:main
-          fi

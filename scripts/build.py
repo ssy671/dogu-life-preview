@@ -20,7 +20,7 @@ if ADSENSE_CLIENT and not re.fullmatch(r'ca-pub-\d{16}',ADSENSE_CLIENT):
     raise ValueError('AdSense client must be a ca-pub- ID with 16 digits')
 BASE_PATH=os.getenv('BLOG_BASE_PATH', '/' if IS_CLOUDFLARE else '/dogu-life-preview/')
 PREFIX='/' + BASE_PATH.strip('/') + '/' if BASE_PATH.strip('/') else '/'
-VIEWS_SOURCE=os.getenv('BLOG_VIEWS_URL','https://raw.githubusercontent.com/ssy671/dogu-life-preview/main/content/views.json')
+VIEWS_SOURCE=os.getenv('BLOG_VIEWS_URL','https://raw.githubusercontent.com/ssy671/dogu-life-preview/publication-state/content/views.json')
 KST=ZoneInfo('Asia/Seoul')
 CATEGORIES=['디지털 정리','업무 습관','도구 활용']
 

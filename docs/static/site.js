@@ -69,7 +69,7 @@
 
   const articleList = document.getElementById('article-list');
   if (!articleList) {
-    startViewsRefresh();
+    if (document.querySelector('[data-view-number][data-view-slug]')) startViewsRefresh();
     return;
   }
 

@@ -9,7 +9,7 @@ class CloudflareBuildTests(unittest.TestCase):
   with patch.dict(os.environ,values,clear=True):
    spec=importlib.util.spec_from_file_location('cloudflare_build',ROOT/'scripts/build.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
  def test_github_default_does_not_change(self):
-  m=self.load({});self.assertEqual(m.PREFIX,'/dogu-life-preview/');self.assertEqual(m.SITE,'https://ssy671.github.io/dogu-life-preview');self.assertTrue(m.VIEWS_SOURCE.endswith('/main/content/views.json'))
+  m=self.load({});self.assertEqual(m.PREFIX,'/dogu-life-preview/');self.assertEqual(m.SITE,'https://ssy671.github.io/dogu-life-preview');self.assertTrue(m.VIEWS_SOURCE.endswith('/publication-state/content/views.json'))
  def test_cloudflare_uses_root_and_external_snapshot(self):
   m=self.load({'CF_PAGES':'1','CF_PAGES_URL':'https://review.example.pages.dev'})
   self.assertEqual(m.PREFIX,'/');self.assertEqual(m.SITE,'https://lifehint-daily.pages.dev');self.assertTrue(m.VIEWS_SOURCE.endswith('/content/views.json'))
