@@ -63,6 +63,9 @@ for attempt in range(1,13):
       assert f'<meta name="google-adsense-account" content="{client}">' in head,f'{path}: AdSense account meta missing'
       assert f'<link rel="canonical" href="{BASE+path}">' in head,f'{path}: canonical must use the public Pages URL'
       assert 'noindex' not in head,f'{path}: production indexing is still blocked'
+      verification=site_config.get('google_site_verification')
+      if verification:
+       assert f'<meta name="google-site-verification" content="{verification}">' in head,f'{path}: Search Console verification meta not yet deployed'
      if public_check and path=='robots.txt':assert 'Disallow: /' not in body,'Production crawler access is blocked'
      if path=='':assert body.count('class="card" data-slug=')==len(posts)+min(3,len(posts)), 'Article list not yet updated'
      if path in article_images:

@@ -132,6 +132,8 @@ def shell(title,body,description='',article=None,path=''):
         url=SITE+'/post/'+article['slug']+'/'
         data={'@context':'https://schema.org','@type':'BlogPosting','headline':article['title'],'description':article['summary'],'datePublished':article['published_at'],'author':{'@type':'Organization','name':'도구생활'},'image':SITE+'/static/diagrams/'+article['slug']+'.svg','mainEntityOfPage':url}
         head+=f'<script type="application/ld+json">{dump(data)}</script>'
+    if PUBLIC_SITE and SITE_CONFIG.get('google_site_verification'):
+        head+=f'<meta name="google-site-verification" content="{esc(SITE_CONFIG["google_site_verification"])}">'
     if ADSENSE_CLIENT:
         head+=f'<meta name="google-adsense-account" content="{esc(ADSENSE_CLIENT)}"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={esc(ADSENSE_CLIENT)}" crossorigin="anonymous"></script>'
     robots='index,follow' if PUBLIC_SITE else 'noindex,nofollow'
