@@ -107,6 +107,7 @@ def sync(posts_path=None, views_path=None, *, opener=urlopen, now=None) -> dict:
         if slug not in slugs:
             slugs.append(slug)
     snapshot = _read_snapshot(views_path)
+    original_counts = dict(snapshot['counts'])
     refreshed = 0
     errors = 0
     if slugs:
@@ -121,7 +122,8 @@ def sync(posts_path=None, views_path=None, *, opener=urlopen, now=None) -> dict:
                     continue
                 snapshot["counts"][slug] = max(snapshot["counts"].get(slug, 0), count)
                 refreshed += 1
-    if refreshed:
+    changed = snapshot['counts'] != original_counts
+    if refreshed and (changed or not views_path.exists()):
         timestamp = now if now is not None else datetime.now(timezone.utc)
         if timestamp.tzinfo is None:
             raise ValueError("Snapshot timestamp must include a timezone")
@@ -130,7 +132,7 @@ def sync(posts_path=None, views_path=None, *, opener=urlopen, now=None) -> dict:
     print(
         f"View sync: {len(slugs)} articles, {refreshed} API responses, "
         f"{errors} errors; "
-        + ("snapshot updated." if refreshed else "previous snapshot retained.")
+        + ("snapshot updated." if changed else "counts unchanged; previous snapshot retained.")
     )
     return snapshot
 

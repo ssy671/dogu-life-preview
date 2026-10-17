@@ -1,11 +1,11 @@
 name: Check preview URL
 on:
-  push:
-    branches: [main]
-    paths: [.github/workflows/preview-check.yml, scripts/check_live.py, tests/browser_check.py]
-  workflow_run:
-    workflows: ["pages build and deployment", "Publish daily articles and refresh views"]
-    types: [completed]
+  workflow_call:
+    inputs:
+      fingerprint:
+        type: string
+        required: false
+        default: ''
   workflow_dispatch:
 permissions:
   contents: read
@@ -24,6 +24,7 @@ jobs:
             url: https://lifehint-daily.pages.dev/
     env:
       BLOG_CHECK_URL: ${{ matrix.url }}
+      BLOG_EXPECTED_BUILD: ${{ inputs.fingerprint }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,16 +33,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Verify live homepage, images, data, and all article URLs
+      - name: Verify the deployed version, images, data, and article URLs
         run: python scripts/check_live.py
-      - name: Install browser test dependency
+      - name: Install the production browser check
+        if: matrix.site == 'pages'
         run: |
           python -m pip install playwright
           python -m playwright install --with-deps chromium
-      - name: Verify sorting and filters on desktop and mobile
+      - name: Verify production desktop and mobile behavior
+        if: matrix.site == 'pages'
         run: python tests/browser_check.py
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && matrix.site == 'pages'
         with:
           name: blog-screen-check-${{ matrix.site }}
           path: artifacts/

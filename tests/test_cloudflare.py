@@ -9,7 +9,7 @@ class CloudflareBuildTests(unittest.TestCase):
   with patch.dict(os.environ,values,clear=True):
    spec=importlib.util.spec_from_file_location('cloudflare_build',ROOT/'scripts/build.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
  def test_github_default_does_not_change(self):
-  m=self.load({});self.assertEqual(m.PREFIX,'/dogu-life-preview/');self.assertEqual(m.SITE,'https://ssy671.github.io/dogu-life-preview');self.assertEqual(m.VIEWS_SOURCE,'')
+  m=self.load({});self.assertEqual(m.PREFIX,'/dogu-life-preview/');self.assertEqual(m.SITE,'https://ssy671.github.io/dogu-life-preview');self.assertTrue(m.VIEWS_SOURCE.endswith('/main/content/views.json'))
  def test_cloudflare_uses_root_and_external_snapshot(self):
   m=self.load({'CF_PAGES':'1','CF_PAGES_URL':'https://review.example.pages.dev'})
   self.assertEqual(m.PREFIX,'/');self.assertEqual(m.SITE,'https://lifehint-daily.pages.dev');self.assertTrue(m.VIEWS_SOURCE.endswith('/content/views.json'))
@@ -28,7 +28,7 @@ class CloudflareBuildTests(unittest.TestCase):
  def test_all_cloudflare_page_links_and_diagrams_exist(self):
   m=self.load({'CF_PAGES':'1','CF_PAGES_URL':'https://example.pages.dev'})
   with tempfile.TemporaryDirectory() as d:
-   root=Path(d);shutil.copytree(ROOT/'content',root/'content');shutil.copytree(ROOT/'docs',root/'docs');m.ROOT=root
+   root=Path(d);shutil.copytree(ROOT/'content',root/'content');shutil.copytree(ROOT/'docs',root/'docs');shutil.copytree(ROOT/'scripts',root/'scripts');m.ROOT=root
    count=m.build();self.assertGreaterEqual(count,18)
    class Links(HTMLParser):
     def handle_starttag(self,tag,attrs):

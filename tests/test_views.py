@@ -89,7 +89,13 @@ class SyncTests(unittest.TestCase):
     def test_404_does_not_reset_previously_counted_article(self):
         result = self.run_sync(Mock(side_effect=HTTPError("https://example.invalid", 404, "Not Found", {}, None)))
         self.assertEqual(result["counts"]["article"], 17)
-        self.assertEqual(result["updated_at"], "2026-10-15T01:02:03Z")
+        self.assertEqual(result["updated_at"], self.original["updated_at"])
+
+    def test_unchanged_counts_do_not_rewrite_the_snapshot(self):
+        before = self.views.read_bytes()
+        result = self.run_sync(Mock(return_value=response({"total": 17})))
+        self.assertEqual(result, self.original)
+        self.assertEqual(self.views.read_bytes(), before)
 
     def test_404_initializes_new_article_at_zero(self):
         self.posts.write_text(json.dumps([{"slug": "new-article"}]), encoding="utf-8")

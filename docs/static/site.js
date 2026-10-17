@@ -49,10 +49,6 @@
   });
   window.setInterval(checkDate, 60000);
 
-  const articleList = document.getElementById('article-list');
-  // Article pages share this script for the date-sensitive NEW badge.
-  if (!articleList) return;
-
   let viewData = readJSON('view-data', {});
   let counts = viewData && typeof viewData.counts === 'object' && viewData.counts !== null ? viewData.counts : {};
   const number = new Intl.NumberFormat('ko-KR');
@@ -60,6 +56,23 @@
     const value = Object.prototype.hasOwnProperty.call(counts, slug) ? Number(counts[slug]) : 0;
     return Number.isFinite(value) && value >= 0 ? Math.floor(value) : 0;
   };
+  let onViewsUpdated = () => {};
+  function updateArticleViews() {
+    document.querySelectorAll('[data-view-number][data-view-slug]').forEach((element) => {
+      const slug = element.dataset.viewSlug;
+      // Partial snapshots must not erase the count embedded in an article.
+      if (Object.prototype.hasOwnProperty.call(counts, slug)) {
+        element.textContent = number.format(countFor(slug));
+      }
+    });
+  }
+
+  const articleList = document.getElementById('article-list');
+  if (!articleList) {
+    startViewsRefresh();
+    return;
+  }
+
   const nodes = new Map();
   articleList.querySelectorAll('article.card[data-slug]').forEach((card) => {
     if (!nodes.has(card.dataset.slug)) nodes.set(card.dataset.slug, card);
@@ -255,43 +268,51 @@
       typeof count === 'number' && Number.isSafeInteger(count) && count >= 0);
   }
 
-  let viewsSource;
-  const configuredSource = document.body && document.body.dataset.viewsSource;
-  if (configuredSource) {
-    try {
-      const url = new URL(configuredSource);
-      if (url.protocol === 'https:' && !url.username && !url.password) viewsSource = url.href;
-    } catch {
-      // An absent or invalid source leaves the embedded snapshot unchanged.
+  function startViewsRefresh() {
+    let viewsSource;
+    const configuredSource = document.body && document.body.dataset.viewsSource;
+    if (configuredSource) {
+      try {
+        const url = new URL(configuredSource);
+        if (url.protocol === 'https:' && !url.username && !url.password) viewsSource = url.href;
+      } catch {
+        // An absent or invalid source leaves the embedded snapshot unchanged.
+      }
+    }
+    if (viewsSource && typeof window.fetch === 'function') {
+      let refreshing = false;
+      const refreshViews = async () => {
+        if (refreshing) return;
+        refreshing = true;
+        try {
+          const response = await window.fetch(viewsSource, {
+            mode: 'cors', credentials: 'omit', referrerPolicy: 'no-referrer', cache: 'no-store'
+          });
+          if (!response.ok) return;
+          const snapshot = await response.json();
+          if (!validSnapshot(snapshot)) return;
+          const currentTime = viewData && typeof viewData.updated_at === 'string' ? Date.parse(viewData.updated_at) : NaN;
+          if (Number.isFinite(currentTime) && Date.parse(snapshot.updated_at) < currentTime) return;
+          viewData = snapshot;
+          counts = snapshot.counts;
+          updateArticleViews();
+          onViewsUpdated();
+        } catch {
+          // Network or CORS errors retain the last usable snapshot without alerts.
+        } finally {
+          refreshing = false;
+        }
+      };
+      refreshViews();
+      window.setInterval(refreshViews, 60 * 60 * 1000);
     }
   }
-  if (viewsSource && typeof window.fetch === 'function') {
-    let refreshing = false;
-    const refreshViews = async () => {
-      if (refreshing) return;
-      refreshing = true;
-      try {
-        const response = await window.fetch(viewsSource, {
-          mode: 'cors', credentials: 'omit', referrerPolicy: 'no-referrer', cache: 'no-store'
-        });
-        if (!response.ok) return;
-        const snapshot = await response.json();
-        if (!validSnapshot(snapshot)) return;
-        const currentTime = viewData && typeof viewData.updated_at === 'string' ? Date.parse(viewData.updated_at) : NaN;
-        if (Number.isFinite(currentTime) && Date.parse(snapshot.updated_at) < currentTime) return;
-        viewData = snapshot;
-        counts = snapshot.counts;
-        updateViews(articleList);
-        renderToday();
-        render();
-        renderViewsStatus();
-      } catch {
-        // Network or CORS errors retain the last usable snapshot without alerts.
-      } finally {
-        refreshing = false;
-      }
-    };
-    refreshViews();
-    window.setInterval(refreshViews, 60 * 60 * 1000);
-  }
+
+  onViewsUpdated = () => {
+    updateViews(articleList);
+    renderToday();
+    render();
+    renderViewsStatus();
+  };
+  startViewsRefresh();
 })();

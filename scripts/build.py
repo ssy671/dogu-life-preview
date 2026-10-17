@@ -1,11 +1,13 @@
 """Render the blog and topic-specific SVG diagrams; no server or packages required."""
-import argparse,html,json,math,re,os
+import argparse,html,json,math,re,os,sys
 import xml.etree.ElementTree as ET
 from datetime import datetime,timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/'scripts'))
+from automation import render_fingerprint
 SITE_CONFIG=json.loads((ROOT/'content/site.json').read_text()) if (ROOT/'content/site.json').exists() else {}
 PRODUCTION_SITE=SITE_CONFIG.get('production_url','').rstrip('/')
 IS_WORKERS_BUILD=bool(os.getenv('WORKERS_CI'))
@@ -18,7 +20,7 @@ if ADSENSE_CLIENT and not re.fullmatch(r'ca-pub-\d{16}',ADSENSE_CLIENT):
     raise ValueError('AdSense client must be a ca-pub- ID with 16 digits')
 BASE_PATH=os.getenv('BLOG_BASE_PATH', '/' if IS_CLOUDFLARE else '/dogu-life-preview/')
 PREFIX='/' + BASE_PATH.strip('/') + '/' if BASE_PATH.strip('/') else '/'
-VIEWS_SOURCE=os.getenv('BLOG_VIEWS_URL','https://raw.githubusercontent.com/ssy671/dogu-life-preview/main/content/views.json' if IS_CLOUDFLARE else '')
+VIEWS_SOURCE=os.getenv('BLOG_VIEWS_URL','https://raw.githubusercontent.com/ssy671/dogu-life-preview/main/content/views.json')
 KST=ZoneInfo('Asia/Seoul')
 CATEGORIES=['디지털 정리','업무 습관','도구 활용']
 
@@ -163,7 +165,8 @@ def article(post,posts,views,illustration=None):
     text=''.join(parts)
     related=[p for p in sorted(posts,key=order,reverse=True) if p['category']==post['category'] and p['slug']!=post['slug']][:3]
     links=''.join(f'<li><a href="{PREFIX}post/{p["slug"]}/">{esc(p["title"])}</a></li>' for p in related)
-    body=f'''<article class="reading"><a href="{PREFIX}#articles">← 전체 글</a><span class="eyebrow">{esc(post['category'])}</span><h1>{esc(post['title'])}</h1><p class="lead">{esc(post['summary'])}</p><div class="meta reading-meta"><span>도구생활 편집부 · {date} · {minutes(post)}분 읽기</span><span class="new-badge" data-date="{date}" hidden>NEW</span><span class="view-count">조회 {count:,} <small>(매시간 반영)</small></span></div>{art}<div class="prose">{text}</div><div class="article-counter"><img data-counter-src="https://hits.sh/ssy671.github.io/dogu-life-preview/post/{post['slug']}.svg?label=views&amp;color=183e37" alt="이 글의 누적 조회수" width="92" height="20" referrerpolicy="no-referrer"><p>조회수는 외부 서비스로 집계하며 새로고침·봇 요청이 포함될 수 있습니다.</p></div><aside class="related-posts"><h2>함께 읽으면 좋은 글</h2><ul>{links}</ul></aside></article>'''
+    body=f'''<article class="reading"><a href="{PREFIX}#articles">← 전체 글</a><span class="eyebrow">{esc(post['category'])}</span><h1>{esc(post['title'])}</h1><p class="lead">{esc(post['summary'])}</p><div class="meta reading-meta"><span>도구생활 편집부 · {date} · {minutes(post)}분 읽기</span><span class="new-badge" data-date="{date}" hidden>NEW</span><span class="view-count">조회 <span data-view-number data-view-slug="{esc(post['slug'])}">{count:,}</span> <small>(매시간 반영)</small></span></div>{art}<div class="prose">{text}</div><div class="article-counter"><img data-counter-src="https://hits.sh/ssy671.github.io/dogu-life-preview/post/{post['slug']}.svg?label=views&amp;color=183e37" alt="이 글의 누적 조회수" width="92" height="20" referrerpolicy="no-referrer"><p>조회수는 외부 서비스로 집계하며 새로고침·봇 요청이 포함될 수 있습니다.</p></div><aside class="related-posts"><h2>함께 읽으면 좋은 글</h2><ul>{links}</ul></aside></article>'''
+    body+=f'<script id="view-data" type="application/json">{dump({"updated_at":views.get("updated_at"),"counts":{post["slug"]:count}})}</script>'
     return shell(post['title'],body,post['summary'],post)
 
 def build(now=None):
@@ -182,6 +185,7 @@ def build(now=None):
     (docs/'data').mkdir(exist_ok=True)
     (docs/'data/posts.json').write_text(dump([public(p) for p in posts]))
     (docs/'data/views.json').write_text(dump(views))
+    (docs/'data/build.json').write_text(dump({'fingerprint':render_fingerprint(ROOT)}))
     def page(name,title,text,links=''):
         body=f'<section class="reading"><h1>{esc(title)}</h1><div class="prose">{prose(text)}{links}</div></section>'
         target=docs/name/'index.html';target.parent.mkdir(exist_ok=True)

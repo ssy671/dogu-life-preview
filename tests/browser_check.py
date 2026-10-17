@@ -103,5 +103,50 @@ with sync_playwright() as p:
   page.goto(remote_url)
   expect(page.locator('#article-list article.card:visible').first).to_have_attribute('data-slug',posts[-1]['slug'])
   expect(page.locator('#article-list article.card:visible').first.locator('.view-count')).to_have_text('조회 777')
+  article_path='post/'+article_post['slug']+'/'
+  article_html=fetch(article_path+'?test=1') if check_url else (ROOT/'docs'/article_path/'index.html').read_text()
+  article_source='https://counts.example.test/article-views.json'
+  article_html=re.sub(r'<body[^>]*>', '<body data-views-source="'+article_source+'">',article_html,count=1)
+  article_html,numbers_replaced=re.subn(r'(<span\b[^>]*\bdata-view-number\b[^>]*>)[^<]*(</span>)',lambda m:m[1]+'41'+m[2],article_html,count=1)
+  assert numbers_replaced==1,'Article header needs a separately addressable view count'
+  article_fixture={'updated_at':'2026-10-15T00:00:00Z','counts':{article_post['slug']:41}}
+  article_html=re.sub(r'<script id="view-data"[^>]*>.*?</script>','',article_html,flags=re.S)
+  article_html=article_html.replace('</body>','<script id="view-data" type="application/json">'+json.dumps(article_fixture)+'</script></body>')
+  article_snapshot={'payload':{'updated_at':'invalid','counts':{article_post['slug']:999}},'status':200,'abort':False}
+  def serve_article_snapshot(route):
+   if article_snapshot['abort']:route.abort()
+   else:route.fulfill(status=article_snapshot['status'],body=json.dumps(article_snapshot['payload']),headers={'Access-Control-Allow-Origin':'*','Content-Type':'application/json'})
+  context.route(article_source,serve_article_snapshot)
+  remote_article_url=base+article_path+'?test=1&remote=1'
+  context.route(remote_article_url,lambda route:route.fulfill(status=200,body=article_html,content_type='text/html'))
+  page.add_init_script("""(() => {
+   const setInterval = window.setInterval.bind(window);
+   window.__viewRefreshCallbacks = [];
+   window.setInterval = (callback, delay, ...args) => {
+    if (delay === 60 * 60 * 1000) window.__viewRefreshCallbacks.push(callback);
+    return setInterval(callback, delay, ...args);
+   };
+  })();""")
+  page.goto(remote_article_url);page.wait_for_load_state('networkidle')
+  article_number=page.locator('[data-view-number][data-view-slug="'+article_post['slug']+'"]')
+  expect(article_number).to_have_text('41')
+  assert page.locator('#article-list').count()==0,'Remote count test must exercise an article page'
+  assert page.evaluate('window.__viewRefreshCallbacks.length')==1,'Article pages must schedule hourly view refreshes'
+  article_snapshot['payload']={'updated_at':'2026-10-15T23:59:59Z','counts':{article_post['slug']:1234}}
+  page.evaluate('() => window.__viewRefreshCallbacks[0]()')
+  expect(article_number).to_have_text('1,234')
+  expect(page.locator('.reading-meta .view-count small')).to_have_text('(매시간 반영)')
+  for payload,status,abort in [
+   ({'updated_at':'2026-10-14T23:59:59Z','counts':{article_post['slug']:999}},200,False),
+   ({'updated_at':'2026-10-16T00:00:00Z','counts':{article_post['slug']:-1}},200,False),
+   ({'updated_at':'2026-02-30T00:00:00Z','counts':{article_post['slug']:999}},200,False),
+   ({'updated_at':'2026-10-16T00:00:00Z','counts':{}},200,False),
+   ({'updated_at':'2026-10-17T00:00:00Z','counts':{article_post['slug']:999}},503,False),
+   ({'updated_at':'2026-10-17T00:00:00Z','counts':{article_post['slug']:999}},200,True),
+  ]:
+   article_snapshot.update(payload=payload,status=status,abort=abort)
+   page.evaluate('() => window.__viewRefreshCallbacks[0]()')
+   expect(article_number).to_have_text('1,234')
+  assert page.locator('[data-counter-src]').get_attribute('src') is None,'Remote count refreshes must not increment counters'
   browser.close()
-print(f'PASS: {base} assets, latest/popular sorting, combined filters, KST today, history, inline generated images decoded on desktop/mobile, article layout and remote view snapshots.')
+print(f'PASS: {base} assets, latest/popular sorting, combined filters, KST today, history, inline generated images decoded on desktop/mobile, article layout, homepage/article remote view snapshots and article snapshot failure recovery.')

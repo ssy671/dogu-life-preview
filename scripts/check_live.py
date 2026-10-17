@@ -3,6 +3,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlsplit
 BASE=os.getenv('BLOG_CHECK_URL','https://ssy671.github.io/dogu-life-preview/').strip().rstrip('/')+'/'
+EXPECTED_BUILD=os.getenv('BLOG_EXPECTED_BUILD','').strip()
 ROOT=Path(__file__).resolve().parents[1]
 posts=json.loads((ROOT/'content/posts.json').read_text())
 manifest=ROOT/'content/illustrations.json'
@@ -35,7 +36,9 @@ def check_raster(path,body,ctype):
  elif suffix in {'.jpg','.jpeg'}:valid=body[:3]==b'\xff\xd8\xff'
  else:valid=body[4:8]==b'ftyp' and any(brand in body[8:40] for brand in (b'avif',b'avis'))
  assert valid,f'{path}: response is not a valid {suffix} image signature'
-paths={'':('id="sort-select"','text/html'),'data/posts.json':('published_at','application/json'),'static/site.js':('popular','application/javascript'),'static/upgrade.css':('today','text/css')}
+paths={}
+if EXPECTED_BUILD:paths['data/build.json']=(EXPECTED_BUILD,'application/json')
+paths.update({'':('id="sort-select"','text/html'),'data/posts.json':('published_at','application/json'),'static/site.js':('popular','application/javascript'),'static/upgrade.css':('today','text/css')})
 if public_check:
  paths.update({'about/':('도구생활 소개','text/html'),'contact/':(site_config['contact_email'],'text/html'),'privacy/':('개인 맞춤 광고','text/html'),'robots.txt':('Sitemap: '+BASE+'sitemap.xml','text/plain'),'sitemap.xml':(BASE+'post/','application/xml'),'ads.txt':('google.com, '+client.removeprefix('ca-')+', DIRECT, f08c47fec0942fa0','text/plain')})
 for p in posts:
@@ -53,6 +56,7 @@ for attempt in range(1,13):
     if path in image_paths:check_raster(path,payload,r.headers.get_content_type())
     else:
      body=payload.decode('utf-8');assert expected in body,path
+     if path=='data/build.json':assert json.loads(body).get('fingerprint')==EXPECTED_BUILD,'The expected site version has not deployed yet'
      if public_check and ctype=='text/html':
       head=body.split('</head>',1)[0]
       assert head.count('adsbygoogle.js?client='+client)==1,f'{path}: AdSense script not yet deployed'
@@ -66,6 +70,7 @@ for attempt in range(1,13):
       assert article_images[path] in parser.images,f'{path}: mapped illustration missing from article body'
   print(f'PASS: {BASE} homepage, sorting controls, data, {len(posts)} article pages, their SVG diagrams and {len(image_paths)} generated raster illustrations are live.')
   if public_check:print('PASS: AdSense script/account on every page, ads.txt, stable canonicals, crawler access, sitemap, privacy and public contact are live.')
+  if EXPECTED_BUILD:print('PASS: live site matches expected build '+EXPECTED_BUILD)
   break
  except Exception as e:
   print(f'Attempt {attempt}: {e}',flush=True)

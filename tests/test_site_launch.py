@@ -34,7 +34,7 @@ class SiteLaunchTests(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name)
-        for directory in ('content', 'docs'):
+        for directory in ('content', 'docs', 'scripts'):
             shutil.copytree(ROOT / directory, self.root / directory)
         self.docs = self.root / 'docs'
 

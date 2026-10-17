@@ -6,7 +6,9 @@ on:
       - scripts/**
       - content/**
       - docs/static/**
+      - tests/**
       - .github/workflows/daily-publish.yml
+      - .github/workflows/preview-check.yml
   schedule:
     - cron: '0 0 * * *'
     - cron: '7 * * * *'
@@ -25,6 +27,9 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      deployed: ${{ steps.deployment.outcome == 'success' }}
+      fingerprint: ${{ steps.plan.outputs.fingerprint }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,37 +37,127 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Run publication and counter tests
-        run: python -m unittest discover -s tests -v
-      - name: Publish three reviewed articles after 09:00 Asia/Seoul
-        run: python scripts/publish.py
+      - name: Release at most three reviewed articles
+        id: release
+        run: |
+          python - <<'PY'
+          import json, os
+          from scripts.publish import release
+          result = release()
+          print(json.dumps(result, ensure_ascii=False))
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f"published={result['published']}\n")
+              output.write(f"remaining={result['remaining']}\n")
+          PY
       - name: Read public view totals without incrementing
         run: python scripts/sync_views.py
-      - name: Build illustrated pages
+      - name: Decide whether render inputs need deployment
+        id: plan
+        run: |
+          python - <<'PY'
+          import os
+          from scripts.automation import deployment_plan
+          plan = deployment_plan(event=os.environ['GITHUB_EVENT_NAME'])
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f"fingerprint={plan['fingerprint']}\n")
+              output.write(f"build={str(plan['build']).lower()}\n")
+          print('Full site deployment required:', plan['build'])
+          PY
+      - name: Validate publication, views, and deployment rules
+        if: steps.plan.outputs.build == 'true'
+        run: python -m unittest discover -s tests -v
+      - name: Mark this site version pending verification
+        if: steps.plan.outputs.build == 'true'
+        env:
+          EXPECTED_BUILD: ${{ steps.plan.outputs.fingerprint }}
+        run: |
+          python - <<'PY'
+          import os
+          from scripts.automation import ROOT, record
+          assert record(ROOT, os.environ['EXPECTED_BUILD'])
+          PY
+      - name: Build illustrated pages only when needed
+        if: steps.plan.outputs.build == 'true'
         run: python scripts/build.py
-      - name: Save publication and counts
+      - name: Save publication or a view-only snapshot
+        env:
+          PUBLISHED: ${{ steps.release.outputs.published }}
+          FULL_BUILD: ${{ steps.plan.outputs.build }}
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add content docs
+          git add content
+          if [ "$FULL_BUILD" = true ]; then git add docs; fi
           if ! git diff --cached --quiet; then
-            git commit -m 'Publish scheduled articles and refresh public view totals'
+            python - <<'PY' > "$RUNNER_TEMP/publication-message.txt"
+          import os
+          from scripts.automation import commit_message
+          print(commit_message(published=int(os.environ['PUBLISHED']), build=os.environ['FULL_BUILD']=='true', event=os.environ['GITHUB_EVENT_NAME']))
+          PY
+            git commit -F "$RUNNER_TEMP/publication-message.txt"
             git push origin HEAD:main
           fi
       - uses: actions/upload-pages-artifact@v3
+        if: steps.plan.outputs.build == 'true'
         with:
           path: docs
       - name: Deploy the generated blog
         id: deployment
+        if: steps.plan.outputs.build == 'true'
         uses: actions/deploy-pages@v4
-      - name: Report remaining reviewed articles
+      - name: Report publication and deployment decision
+        env:
+          PUBLISHED: ${{ steps.release.outputs.published }}
+          REMAINING: ${{ steps.release.outputs.remaining }}
+          FULL_BUILD: ${{ steps.plan.outputs.build }}
         run: |
           python - <<'PY'
-          import json, os
-          from pathlib import Path
-          pending = len(json.loads(Path('content/queue.json').read_text()))
-          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as f:
-              f.write(f'Reviewed queue: {pending} articles ({pending // 3} full daily releases).\n')
-          if pending < 9:
-              print('::warning::Reviewed article queue is running low. Add more reviewed originals to content/queue.json.')
+          import os
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
+              output.write(f"Published: {os.environ['PUBLISHED']} articles.\n")
+              output.write(f"Reviewed queue: {os.environ['REMAINING']} articles.\n")
+              output.write(f"Full build/deploy/check required: {os.environ['FULL_BUILD']}.\n")
           PY
+  verify:
+    needs: publish
+    if: needs.publish.outputs.deployed == 'true'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/preview-check.yml
+    with:
+      fingerprint: ${{ needs.publish.outputs.fingerprint }}
+  checkpoint:
+    needs: [publish, verify]
+    if: needs.publish.outputs.deployed == 'true' && needs.verify.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Record only the version that passed live checks
+        env:
+          EXPECTED_BUILD: ${{ needs.publish.outputs.fingerprint }}
+        run: |
+          python - <<'PY'
+          import os
+          from scripts.automation import ROOT, record
+          if not record(ROOT, os.environ['EXPECTED_BUILD'], verified=True):
+              print('Newer render inputs found; the next queued run will deploy them.')
+          else:
+              from scripts.automation import deployment_plan
+              assert not deployment_plan(event='schedule')['build']
+              print('PASS: unchanged scheduled runs now skip build, deploy, and browser checks.')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add content/deployment.json
+          if ! git diff --cached --quiet; then
+            git commit -m '[skip ci] Record the verified site version'
+            git push origin HEAD:main
+          fi
