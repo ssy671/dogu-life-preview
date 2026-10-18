@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-17T09:13:52.648054Z",
+  "updated_at": "2026-10-18T00:54:42.004691Z",
   "counts": {
     "check-email-in-windows": 1,
     "name-files-consistently": 1,
@@ -24,6 +24,9 @@
     "desktop-shortcut-audit": 5,
     "split-large-tasks": 0,
     "verify-scanned-documents": 0,
-    "spreadsheet-input-rules": 0
+    "spreadsheet-input-rules": 0,
+    "plan-backward-from-deadline": 0,
+    "document-headings-and-outline": 0,
+    "separate-personal-work-files": 0
   }
 }
