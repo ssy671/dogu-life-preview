@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-18T00:54:42.004691Z",
+  "updated_at": "2026-10-19T01:07:52.664962Z",
   "counts": {
     "check-email-in-windows": 1,
     "name-files-consistently": 1,
@@ -27,6 +27,9 @@
     "spreadsheet-input-rules": 0,
     "plan-backward-from-deadline": 0,
     "document-headings-and-outline": 0,
-    "separate-personal-work-files": 0
+    "separate-personal-work-files": 0,
+    "organize-photos-by-event": 0,
+    "communicate-schedule-changes": 0,
+    "choose-comparison-table-criteria": 0
   }
 }
