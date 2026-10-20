@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-19T01:07:52.664962Z",
+  "updated_at": "2026-10-20T00:16:05.382815Z",
   "counts": {
     "check-email-in-windows": 1,
     "name-files-consistently": 1,
@@ -30,6 +30,9 @@
     "separate-personal-work-files": 0,
     "organize-photos-by-event": 0,
     "communicate-schedule-changes": 0,
-    "choose-comparison-table-criteria": 0
+    "choose-comparison-table-criteria": 0,
+    "external-drive-inventory": 0,
+    "start-with-one-notes-app": 0,
+    "write-actionable-review-comments": 0
   }
 }
