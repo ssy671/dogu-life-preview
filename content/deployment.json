@@ -1,5 +1,6 @@
 {
-  "status": "verified",
-  "fingerprint": "f4d0facdc959eb3bdb424efdb285d7d02f6017b9601433b6a9c3bbb35b1a9108",
-  "updated_at": "2026-10-21T03:38:46.453309+00:00"
+  "status": "pending",
+  "fingerprint": null,
+  "updated_at": "2026-10-22T03:37:10.869043+00:00",
+  "pending_fingerprint": "ea9a48a6b8c9804b3012075e224b00e2a23a31ded3531e5df81458820233d62e"
 }

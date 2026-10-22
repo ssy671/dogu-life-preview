@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-21T03:37:21.158547Z",
+  "updated_at": "2026-10-22T03:37:08.568470Z",
   "counts": {
     "check-email-in-windows": 1,
     "name-files-consistently": 1,
@@ -36,6 +36,9 @@
     "write-actionable-review-comments": 0,
     "verify-duplicate-files-before-delete": 0,
     "prepare-meeting-agenda-for-decision": 0,
-    "check-before-online-form-submission": 0
+    "check-before-online-form-submission": 0,
+    "review-old-shared-links": 0,
+    "clean-copied-table-format": 0,
+    "agree-work-request-scope": 0
   }
 }
