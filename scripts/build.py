@@ -84,11 +84,12 @@ def section_ids(chunks):
     return ids
 
 def inline_prose(text):
-    # Only local article links are supported; arbitrary HTML/URLs remain text.
-    pattern=r'\[([^]\n]+)\]\(/post/([a-z0-9]+(?:-[a-z0-9]+)*)/\)'
+    # Local article links and official Blender documentation links only; HTML stays escaped.
+    pattern=r'\[([^]\n]+)\]\((?:/post/([a-z0-9]+(?:-[a-z0-9]+)*)/|(https://docs\.blender\.org/manual/en/[a-zA-Z0-9_./-]+\.html))\)'
     parts=[];offset=0
     for match in re.finditer(pattern,text):
-        parts.extend([esc(text[offset:match.start()]),f'<a href="{PREFIX}post/{match[2]}/">{esc(match[1])}</a>'])
+        url=f'{PREFIX}post/{match[2]}/' if match[2] else match[3]
+        parts.extend([esc(text[offset:match.start()]),f'<a href="{esc(url)}">{esc(match[1])}</a>'])
         offset=match.end()
     parts.append(esc(text[offset:]))
     return ''.join(parts).replace('\n','<br>')
@@ -192,7 +193,7 @@ def card(post,views,today):
 
 def home(posts,views,now):
     ordered=sorted(posts,key=order,reverse=True);today=now.astimezone(KST).date().isoformat();fresh=[p for p in ordered if day(p)==today][:3]
-    featured=fresh or ordered[:3];heading='오늘의 글' if fresh else '최근 글';cta='오늘의 글 3편 읽기 ↗' if fresh else '최근 글 읽기 ↗'
+    featured=fresh or ordered[:3];heading='오늘의 글' if fresh else '최근 글';cta=f'오늘의 글 {len(fresh)}편 읽기 ↗' if fresh else '최근 글 읽기 ↗'
     hero=f'''<section class="hero"><div><span class="eyebrow">DIGITAL LIFE, SIMPLIFIED</span><h1>도구는 덜 복잡하게.<br>일상은 더 여유롭게.</h1><p>파일 정리부터 집중하는 업무 습관까지.<br>매일 오전 9시, 새로운 글 세 편으로 만나세요.</p><a id="today-link" class="button" href="#today-list">{cta}</a></div><div class="hero-art"><span class="orbit">↗</span><div class="note"><small>작은 변화, 큰 여유</small><strong>정리하고.<br>집중하고.<br>가볍게.</strong><span>YOUR EVERYDAY TOOLKIT</span></div><i class="dot"></i></div></section>'''
     hero+=f'''<section class="today-section" aria-labelledby="today-heading"><div class="section-head"><div><span class="eyebrow">DAILY THREE</span><h2 id="today-heading">{heading}</h2><p id="today-description">하루에 세 편, 오늘 적용할 수 있는 작은 방법을 읽어보세요.</p></div></div><div class="articles" id="today-list">{''.join(card(p,views,today) for p in featured)}</div></section>'''
     tabs=''.join(f'<a class="{"active" if not cat else ""}" data-category="{esc(cat)}" href="?category={esc(cat)}#articles">{cat or "전체 글"}</a>' for cat in ['']+CATEGORIES)

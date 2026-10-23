@@ -84,7 +84,7 @@ for attempt in range(1,13):
       if verification:
        assert f'<meta name="google-site-verification" content="{verification}">' in head,f'{path}: Search Console verification meta not yet deployed'
      if public_check and path=='robots.txt':assert 'Disallow: /' not in body,'Production crawler access is blocked'
-     if path=='':assert body.count('class="card" data-slug=')==len(posts)+min(3,len(posts)), 'Article list not yet updated'
+     if path=='':assert body.split('id="article-list"',1)[1].split('<p id="empty-state"',1)[0].count('class="card" data-slug=')==len(posts), 'Article list not yet updated'
      if path in article_images:
       parser=InlineImageParser();parser.feed(body)
       assert article_images[path] in parser.images,f'{path}: mapped illustration missing from article body'

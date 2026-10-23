@@ -186,5 +186,14 @@ with sync_playwright() as p:
   from browser_ripples import check_ripples
   check_ripples(page,base)
   check_lazy_search(browser,base,posts)
+  # Exercise both manually published prototype articles, not just the first post.
+  for slug in ['seal-keycap-blender-v1-v2','seal-keycap-stl-size-mesh-check']:
+   illustrated_post=next(post for post in posts if post['slug']==slug)
+   page.goto(base+'post/'+slug+'/?test=1')
+   for label,width,height in [('desktop',1440,1000),('mobile',390,844)]:
+    page.set_viewport_size({'width':width,'height':height})
+    check_article(page,slug+'-'+label)
+   assert 'AI 어시스턴트' in page.locator('.prose').inner_text()
+  print('PASS: both seal keycap articles, comparison renders and TOCs on desktop/mobile.')
   browser.close()
 print(f'PASS: {base} assets, latest/popular sorting, combined filters, KST today, history, inline generated images decoded on desktop/mobile, article layout, homepage/article remote view snapshots and article snapshot failure recovery.')

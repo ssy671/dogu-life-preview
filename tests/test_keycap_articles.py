@@ -22,4 +22,15 @@ class KeycapArticles(unittest.TestCase):
    self.assertIn('검증하지 않았습니다',images[slug]['caption'])
   self.assertIn('252,038',posts[SLUGS[1]]['body'])
   self.assertIn('실물 결합이 검증된 공차가 아니라',posts[SLUGS[1]]['body'])
+ def test_official_documentation_links_render_safely(self):
+  import sys
+  sys.path.insert(0,str(ROOT/'scripts'))
+  import build
+  rendered=build.inline_prose('[STL](https://docs.blender.org/manual/en/5.0/files/import_export/stl.html) [bad](javascript:alert(1))')
+  self.assertIn('<a href="https://docs.blender.org/manual/en/5.0/files/import_export/stl.html">STL</a>',rendered)
+  self.assertNotIn('href="javascript:',rendered)
+  posts=[p for p in json.loads((ROOT/'content/posts.json').read_text()) if p['slug'] in SLUGS]
+  page=build.home(posts,{},datetime(2026,10,24,1,tzinfo=ZoneInfo('Asia/Seoul')))
+  self.assertIn('오늘의 글 2편 읽기',page)
+  self.assertEqual(page.split('id="article-list"',1)[1].split('<p id="empty-state"',1)[0].count('class="card" data-slug='),len(posts))
 if __name__=='__main__':unittest.main()
