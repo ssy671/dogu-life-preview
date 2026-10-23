@@ -23,6 +23,8 @@ def check_ripples(page, base):
                 if (document.elementFromPoint(x, y) === art) return {x, y};
     }''')
     assert point, 'Need an exposed hero background point'
+    # Deliberately cross the production emission throttle between distinct gestures.
+    page.wait_for_timeout(130)
     page.mouse.move(point['x'], point['y'])
     expect(page.locator('.ripple-field--art .water-ring')).to_have_count(1)
     page.evaluate("document.getAnimations().forEach(a => {a.pause(); a.currentTime = 350;})")
