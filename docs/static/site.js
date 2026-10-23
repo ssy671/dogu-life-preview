@@ -163,6 +163,39 @@
     highlight(summary, bodyMatch ? source.body : source.summary, needle, Boolean(bodyMatch));
     if (summary) summary.classList.toggle('search-context', Boolean(bodyMatch));
   }
+  let searchLoad = 'idle';
+  let searchRequest;
+  const searchStatus = document.getElementById('search-status');
+  const searchRetry = document.getElementById('search-retry');
+  const searchReset = document.getElementById('search-reset');
+  function ensureSearchIndex() {
+    if (searchLoad !== 'idle') return searchRequest;
+    searchLoad = 'loading';
+    // One request shared by rapid edits; completion always renders current state.
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    searchRequest = Promise.resolve().then(() => window.fetch(articleList.dataset.searchSource, {
+      credentials: 'omit', signal: controller.signal
+    })).then(response => {
+      if (!response.ok) throw new Error('Search index unavailable');
+      return response.json();
+    }).then(data => {
+      if (!Array.isArray(data)) throw new Error('Invalid search index');
+      const bySlug = new Map(data.map(post => [post && post.slug, post]));
+      if (availablePosts.some(post => !bySlug.has(post.slug) || typeof bySlug.get(post.slug).body !== 'string')) {
+        throw new Error('Incomplete search index');
+      }
+      availablePosts.forEach(post => {
+        searchIndex.get(post.slug).body = searchable(bySlug.get(post.slug).body
+          .replace(/^#{1,6}\s+/gm, '').replace(/\[([^\]]+)\]\(\/post\/[^)]+\)/g, '$1').replace(/\s+/g, ' ').trim());
+      });
+      searchLoad = 'ready';
+    }).catch(() => { searchLoad = 'error'; }).finally(() => {
+      clearTimeout(timeout);
+      render();
+    });
+    return searchRequest;
+  }
   let state;
   let inputTimer;
 
@@ -230,7 +263,7 @@
   }
 
   function render() {
-    if (searchInput && searchInput.value !== state.q) searchInput.value = state.q;
+    if (searchInput && !inputTimer && searchInput.value !== state.q) searchInput.value = state.q;
     if (sortSelect) sortSelect.value = state.sort;
     if (todayFilter) todayFilter.checked = state.day === 'today';
     categoryTabs.forEach((tab) => {
@@ -242,6 +275,17 @@
       tab.href = `${url.pathname}${url.search}${url.hash}`;
     });
     const needle = normalize(state.q.trim());
+    if (needle && searchLoad === 'idle') ensureSearchIndex();
+    const partial = Boolean(needle) && searchLoad !== 'ready';
+    if (searchStatus) {
+      searchStatus.hidden = !partial;
+      searchStatus.textContent = searchLoad === 'error'
+        ? '본문 검색을 불러오지 못했습니다. 제목·요약 결과만 표시합니다. 다시 시도하거나 검색을 초기화하세요.'
+        : '본문 검색을 불러오는 중입니다. 우선 제목·요약 결과를 표시합니다.';
+    }
+    if (searchRetry) searchRetry.hidden = !needle || searchLoad !== 'error';
+    if (searchReset) searchReset.hidden = !needle;
+    articleList.setAttribute('aria-busy', String(Boolean(needle) && searchLoad === 'loading'));
     const ordered = state.sort === 'popular'
       ? [...latest].sort((a, b) => countFor(b.slug) - countFor(a.slug) || latestFirst(a, b))
       : latest;
@@ -258,12 +302,13 @@
       fragment.append(card);
     });
     articleList.replaceChildren(fragment);
-    if (resultCount) resultCount.textContent = `${number.format(visible)}개의 글`;
-    if (emptyState) emptyState.hidden = visible !== 0;
+    if (resultCount) resultCount.textContent = `${number.format(visible)}개의 글${partial ? ' (제목·요약 검색)' : ''}`;
+    if (emptyState) emptyState.hidden = visible !== 0 || partial;
   }
 
   function changeState(patch) {
     clearTimeout(inputTimer);
+    inputTimer = undefined;
     const next = { ...state, q: searchInput ? searchInput.value : state.q, ...patch };
     const url = stateURL(next);
     if (`${url.pathname}${url.search}${url.hash}` !== `${location.pathname}${location.search}${location.hash}`) {
@@ -273,6 +318,15 @@
     render();
   }
 
+  if (searchRetry) searchRetry.addEventListener('click', () => {
+    if (searchLoad !== 'error') return;
+    searchLoad = 'idle';
+    render();
+  });
+  if (searchReset) searchReset.addEventListener('click', () => {
+    changeState({ q: '' });
+    if (searchInput) searchInput.focus();
+  });
   if (searchForm) searchForm.addEventListener('submit', (event) => {
     event.preventDefault();
     changeState({ q: searchInput ? searchInput.value.trim() : '' });
@@ -290,6 +344,7 @@
   }));
   window.addEventListener('popstate', () => {
     clearTimeout(inputTimer);
+    inputTimer = undefined;
     state = readState();
     render();
   });

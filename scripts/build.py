@@ -1,5 +1,5 @@
 """Render the blog and topic-specific SVG diagrams; no server or packages required."""
-import argparse,html,json,math,re,os,sys
+import argparse,html,json,math,re,os,sys,hashlib
 import xml.etree.ElementTree as ET
 from datetime import datetime,timezone
 from email.utils import format_datetime
@@ -83,6 +83,16 @@ def section_ids(chunks):
         used.add(anchor);ids[index]=anchor
     return ids
 
+def inline_prose(text):
+    # Only local article links are supported; arbitrary HTML/URLs remain text.
+    pattern=r'\[([^]\n]+)\]\(/post/([a-z0-9]+(?:-[a-z0-9]+)*)/\)'
+    parts=[];offset=0
+    for match in re.finditer(pattern,text):
+        parts.extend([esc(text[offset:match.start()]),f'<a href="{PREFIX}post/{match[2]}/">{esc(match[1])}</a>'])
+        offset=match.end()
+    parts.append(esc(text[offset:]))
+    return ''.join(parts).replace('\n','<br>')
+
 def prose(body,ids=None):
     chunks=body_chunks(body)
     ids=section_ids(chunks) if ids is None else ids
@@ -91,7 +101,7 @@ def prose(body,ids=None):
         if chunk.startswith('## '):
             title=chunk[3:];anchor=ids[index]
             parts.append(f'<h2 id="{esc(anchor)}">{esc(title)} <a class="section-link" href="#{esc(anchor)}" aria-label="{esc(title)} 구간 링크">#</a></h2>')
-        else:parts.append('<p>'+esc(chunk).replace('\n','<br>')+'</p>')
+        else:parts.append('<p>'+inline_prose(chunk)+'</p>')
     return ''.join(parts)
 
 def table_of_contents(chunks,ids):
@@ -156,6 +166,15 @@ def shell(title,body,description='',article=None,path=''):
     page_path='post/'+article['slug']+'/' if article else path
     if SITE:
         head+=f'<link rel="canonical" href="{esc(SITE+"/"+page_path)}">'
+    if SITE:
+        image_key=article['slug'] if article else 'organize-work-folders'
+        illustration=load('content/illustrations.json').get(image_key,{}) if (ROOT/'content/illustrations.json').exists() else {}
+        image_path=illustration.get('file','static/diagrams/'+image_key+'.svg')
+        metadata={'og:type':'article' if article else 'website','og:title':title+' · 도구생활',
+                  'og:description':description or '디지털 생활과 업무를 가볍게 만드는 도구 활용 가이드',
+                  'og:url':SITE+'/'+page_path,'og:image':SITE+'/'+image_path,
+                  'og:image:alt':illustration.get('alt',title),'og:site_name':'도구생활','og:locale':'ko_KR'}
+        head+=''.join(f'<meta property="{key}" content="{esc(value)}">' for key,value in metadata.items())
     if article and SITE:
         url=SITE+'/post/'+article['slug']+'/'
         data={'@context':'https://schema.org','@type':'BlogPosting','headline':article['title'],'description':article['summary'],'datePublished':article['published_at'],'author':{'@type':'Organization','name':'도구생활'},'image':SITE+'/static/diagrams/'+article['slug']+'.svg','mainEntityOfPage':url}
@@ -177,7 +196,7 @@ def home(posts,views,now):
     hero=f'''<section class="hero"><div><span class="eyebrow">DIGITAL LIFE, SIMPLIFIED</span><h1>도구는 덜 복잡하게.<br>일상은 더 여유롭게.</h1><p>파일 정리부터 집중하는 업무 습관까지.<br>매일 오전 9시, 새로운 글 세 편으로 만나세요.</p><a id="today-link" class="button" href="#today-list">{cta}</a></div><div class="hero-art"><span class="orbit">↗</span><div class="note"><small>작은 변화, 큰 여유</small><strong>정리하고.<br>집중하고.<br>가볍게.</strong><span>YOUR EVERYDAY TOOLKIT</span></div><i class="dot"></i></div></section>'''
     hero+=f'''<section class="today-section" aria-labelledby="today-heading"><div class="section-head"><div><span class="eyebrow">DAILY THREE</span><h2 id="today-heading">{heading}</h2><p id="today-description">하루에 세 편, 오늘 적용할 수 있는 작은 방법을 읽어보세요.</p></div></div><div class="articles" id="today-list">{''.join(card(p,views,today) for p in featured)}</div></section>'''
     tabs=''.join(f'<a class="{"active" if not cat else ""}" data-category="{esc(cat)}" href="?category={esc(cat)}#articles">{cat or "전체 글"}</a>' for cat in ['']+CATEGORIES)
-    body=hero+f'''<section id="articles"><div class="section-head"><div><span class="eyebrow">THE JOURNAL</span><h2>일상을 바꾸는 읽을거리</h2></div><form id="search-form" class="search"><input id="search-input" name="q" aria-label="글 검색" placeholder="궁금한 도구나 습관 검색"><button>검색</button></form></div><div class="categories" id="category-tabs">{tabs}</div><div class="browse-toolbar"><div class="browse-controls"><label class="sort-control" for="sort-select">정렬 <select id="sort-select"><option value="latest">최신순</option><option value="popular">인기순</option></select></label><label class="today-control"><input id="today-filter" type="checkbox"> 오늘 올라온 글만</label></div><span id="result-count" role="status">{len(posts)}편의 글</span></div><p id="views-status" class="views-status">조회수 집계 준비 중입니다.</p><div class="articles" id="article-list">{''.join(card(p,views,today) for p in ordered)}</div><p id="empty-state" class="empty" role="status" hidden>조건에 맞는 글이 없습니다. 검색어나 분류를 바꿔 보세요.</p></section><aside class="callout"><span>한 번에 하나씩</span><h2>좋은 도구보다 중요한 건,<br>나에게 맞는 사용법입니다.</h2><p>도구생활은 새로운 앱을 더하는 대신, 이미 가진 도구를 잘 쓰는 방법을 이야기합니다.</p></aside><script id="posts-data" type="application/json">{dump([public(p) for p in posts])}</script><script id="view-data" type="application/json">{dump(views)}</script>'''
+    body=hero+f'''<section id="articles"><div class="section-head"><div><span class="eyebrow">THE JOURNAL</span><h2>일상을 바꾸는 읽을거리</h2></div><form id="search-form" class="search"><input id="search-input" name="q" aria-label="글 검색" placeholder="궁금한 도구나 습관 검색"><button>검색</button></form></div><div class="categories" id="category-tabs">{tabs}</div><div class="browse-toolbar"><div class="browse-controls"><label class="sort-control" for="sort-select">정렬 <select id="sort-select"><option value="latest">최신순</option><option value="popular">인기순</option></select></label><label class="today-control"><input id="today-filter" type="checkbox"> 오늘 올라온 글만</label></div><span id="result-count" role="status">{len(posts)}편의 글</span></div><p id="views-status" class="views-status">조회수 집계 준비 중입니다.</p><p id="search-status" role="status" hidden></p><button id="search-retry" type="button" hidden>본문 검색 다시 시도</button><button id="search-reset" type="button" hidden>검색 초기화</button><div class="articles" id="article-list" data-search-source="{PREFIX}data/posts.json?v={hashlib.sha256(dump([public(p) for p in posts]).encode()).hexdigest()[:12]}">{''.join(card(p,views,today) for p in ordered)}</div><p id="empty-state" class="empty" role="status" hidden>조건에 맞는 글이 없습니다. 검색어나 분류를 바꿔 보세요.</p></section><aside class="callout"><span>한 번에 하나씩</span><h2>좋은 도구보다 중요한 건,<br>나에게 맞는 사용법입니다.</h2><p>도구생활은 새로운 앱을 더하는 대신, 이미 가진 도구를 잘 쓰는 방법을 이야기합니다.</p></aside><script id="posts-data" type="application/json">{dump([{k:v for k,v in public(p).items() if k!='body'} for p in posts])}</script><script id="view-data" type="application/json">{dump(views)}</script>'''
     return shell('디지털 일상을 가볍게',body)
 
 def article(post,posts,views,illustration=None):

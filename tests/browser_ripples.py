@@ -18,8 +18,8 @@ def check_ripples(page, base):
     page.screenshot(path='artifacts/pointer-ripples.png')
     point = page.locator('.hero-art').evaluate('''art => {
         const r = art.getBoundingClientRect();
-        for (let y = r.top + 30; y < r.bottom - 30; y += 25)
-            for (let x = r.left + 30; x < r.right - 30; x += 25)
+        for (let y = r.top + r.height * .65; y < r.bottom - 30; y += 25)
+            for (let x = r.left + 55; x < r.right - 55; x += 25)
                 if (document.elementFromPoint(x, y) === art) return {x, y};
     }''')
     assert point, 'Need an exposed hero background point'
@@ -28,6 +28,7 @@ def check_ripples(page, base):
     page.mouse.move(point['x'], point['y'])
     expect(page.locator('.ripple-field--art .water-ring')).to_have_count(1)
     page.evaluate("document.getAnimations().forEach(a => {a.pause(); a.currentTime = 350;})")
+    page.evaluate('() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))')
     page.screenshot(path='artifacts/pointer-ripples-hero.png')
     page.emulate_media(reduced_motion='reduce')
     expect(page.locator('.water-ring')).to_have_count(0)
@@ -50,6 +51,7 @@ def check_ripples(page, base):
         mobile.dispatch_event('body', 'pointermove', {'pointerType':'mouse','clientX':5,'clientY':300})
         expect(mobile.locator('.water-ring')).to_have_count(0)
         assert mobile.evaluate('document.documentElement.scrollWidth <= innerWidth + 1')
+        mobile.screenshot(path='artifacts/mobile-viewport.png')
     finally:
         touch.close()
     print('PASS: pointer ripple rendering, pointer transparency, reduced-motion change, controls, resize, and touch opt-out.')

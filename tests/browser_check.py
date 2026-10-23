@@ -7,6 +7,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 from zoneinfo import ZoneInfo
 from playwright.sync_api import sync_playwright,expect
+from lazy_search_browser import check_lazy_search
 ROOT=Path(__file__).resolve().parents[1]
 check_url=os.getenv('BLOG_CHECK_URL','').strip()
 if check_url:
@@ -184,5 +185,6 @@ with sync_playwright() as p:
   print('PASS: full-body-only search, highlighted context, empty results, and clearing search.')
   from browser_ripples import check_ripples
   check_ripples(page,base)
+  check_lazy_search(browser,base,posts)
   browser.close()
 print(f'PASS: {base} assets, latest/popular sorting, combined filters, KST today, history, inline generated images decoded on desktop/mobile, article layout, homepage/article remote view snapshots and article snapshot failure recovery.')

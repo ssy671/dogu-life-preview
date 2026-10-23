@@ -5,7 +5,7 @@ const vm = require('node:vm');
 const path = require('node:path');
 const script = fs.readFileSync(path.join(__dirname, '../docs/static/site.js'), 'utf8');
 const begin = script.indexOf('  const normalize =');
-const end = script.indexOf('  let state;', begin);
+const end = script.indexOf('  let searchLoad =', begin);
 assert.ok(begin >= 0 && end > begin);
 function element(tag = 'p') {
   return {

@@ -116,3 +116,7 @@ body > header, body > main, body > footer { position: relative; z-index: 1; back
   .ripple-field { display: none; }
 }
 @media print { .ripple-field { display: none; } }
+/* Contextual article links remain identifiable without relying on color alone. */
+.prose p a { text-decoration: underline; text-underline-offset: .18em; }
+#search-status { color: var(--muted); font-size: .9rem; }
+#search-retry, #search-reset { margin: 0 .5rem 1rem 0; }
