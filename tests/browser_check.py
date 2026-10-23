@@ -182,5 +182,7 @@ with sync_playwright() as p:
   expect(page.locator('#article-list article.card:visible')).to_have_count(len(posts))
   expect(page.locator('#article-list mark')).to_have_count(0)
   print('PASS: full-body-only search, highlighted context, empty results, and clearing search.')
+  from browser_ripples import check_ripples
+  check_ripples(page,base)
   browser.close()
 print(f'PASS: {base} assets, latest/popular sorting, combined filters, KST today, history, inline generated images decoded on desktop/mobile, article layout, homepage/article remote view snapshots and article snapshot failure recovery.')

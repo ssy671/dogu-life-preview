@@ -1,0 +1,37 @@
+name: Check ripple preview without deployment
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run regressions and build local-only preview
+        run: |
+          python -m unittest discover -s tests -v
+          python scripts/build.py
+      - name: Install test browser
+        run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+      - name: Check desktop, mobile, navigation, search and ripple rendering
+        run: python tests/browser_check.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ripple-preview-browser-evidence
+          path: artifacts/
+          retention-days: 7
