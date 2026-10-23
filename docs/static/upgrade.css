@@ -112,7 +112,7 @@ body > header, body > main, body > footer { position: relative; z-index: 1; back
 .hero-art > :not(.ripple-field) { z-index: 1; }
 .water-ring { position: absolute; width: 150px; height: 150px; border: 1px solid #588064; border-radius: 50%; opacity: 0; pointer-events: none; }
 .water-ring::after { content: ''; position: absolute; inset: 12px; border: 1px solid #8ca776; border-radius: inherit; }
-@media (prefers-reduced-motion: reduce), (hover: none), (pointer: coarse) {
+@media (prefers-reduced-motion: reduce) {
   .ripple-field { display: none; }
 }
 @media print { .ripple-field { display: none; } }
@@ -120,3 +120,16 @@ body > header, body > main, body > footer { position: relative; z-index: 1; back
 .prose p a { text-decoration: underline; text-underline-offset: .18em; }
 #search-status { color: var(--muted); font-size: .9rem; }
 #search-retry, #search-reset { margin: 0 .5rem 1rem 0; }
+
+/* Coarse/touch devices: only two ambient rings inside the decorative hero. */
+.ripple-ambient::before, .ripple-ambient::after {
+  content: ''; position: absolute; width: 160px; height: 160px; left: 12%; top: 68%;
+  border: 1px solid #588064; border-radius: 50%; opacity: 0; pointer-events: none;
+  animation: ambient-water-ring 3.8s ease-out infinite;
+}
+.ripple-ambient::after { animation-delay: -1.9s; }
+@keyframes ambient-water-ring {
+  0% { transform: translate(-50%, -50%) scale(.12); opacity: 0; }
+  18% { opacity: .28; }
+  100% { transform: translate(-50%, -50%) scale(1.25); opacity: 0; }
+}

@@ -16,6 +16,7 @@
     artField.classList.add('ripple-field--art');
     art.prepend(artField);
   }
+  let artVisible = false;
   let listening = false;
   let suspended = false;
   let lastTime = -Infinity;
@@ -66,6 +67,16 @@
       listening = enabled;
     }
     if (!enabled) clear();
+    // Two CSS rings only; no timer or animation loop runs for ambient mode.
+    artField?.classList.toggle('ripple-ambient', !motion.matches && !pointer.matches &&
+      !document.hidden && !suspended && artVisible);
+  }
+  if (art && typeof IntersectionObserver === 'function') {
+    const observer = new IntersectionObserver(entries => {
+      artVisible = entries.some(entry => entry.target === art && entry.isIntersecting);
+      sync();
+    }, { threshold: 0 });
+    observer.observe(art);
   }
   motion.addEventListener('change', sync);
   pointer.addEventListener('change', sync);

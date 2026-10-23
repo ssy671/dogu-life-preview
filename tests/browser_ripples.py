@@ -41,7 +41,7 @@ def check_ripples(page, base):
     expect(field.locator('.water-ring')).to_have_count(1)
     page.set_viewport_size({'width': 1400, 'height': 950})
     expect(page.locator('.water-ring')).to_have_count(0)
-    # Touch emulation must not opt into decorative motion.
+    # Touch devices repeat two CSS rings without pointer input, only while hero is visible.
     touch = page.context.browser.new_context(is_mobile=True, has_touch=True, viewport={'width':390,'height':844})
     try:
         touch.route('https://hits.sh/**', lambda route: route.abort())
@@ -51,7 +51,26 @@ def check_ripples(page, base):
         mobile.dispatch_event('body', 'pointermove', {'pointerType':'mouse','clientX':5,'clientY':300})
         expect(mobile.locator('.water-ring')).to_have_count(0)
         assert mobile.evaluate('document.documentElement.scrollWidth <= innerWidth + 1')
+        ambient = mobile.locator('.ripple-field--art')
+        expect(ambient).to_have_class('ripple-field ripple-field--art ripple-ambient')
+        assert ambient.evaluate("e => getComputedStyle(e, '::before').animationIterationCount") == 'infinite'
+        mobile.wait_for_function("document.querySelector('.ripple-field--art').getAnimations({subtree:true}).some(a => a.currentTime > 3900)")
+        assert ambient.evaluate("e => e.getAnimations({subtree:true}).length") == 2
+        assert ambient.evaluate("e => e.getAnimations({subtree:true}).every(a => a.playState === 'running')")
+        mobile.locator('footer').scroll_into_view_if_needed()
+        expect(ambient).not_to_have_class('ripple-field ripple-field--art ripple-ambient')
+        assert ambient.evaluate("e => e.getAnimations({subtree:true}).length") == 0
+        mobile.evaluate('scrollTo(0,0)')
+        expect(ambient).to_have_class('ripple-field ripple-field--art ripple-ambient')
+        mobile.emulate_media(reduced_motion='reduce')
+        expect(ambient).not_to_have_class('ripple-field ripple-field--art ripple-ambient')
+        assert ambient.evaluate("e => e.getAnimations({subtree:true}).length") == 0
+        mobile.emulate_media(reduced_motion='no-preference')
+        expect(ambient).to_have_class('ripple-field ripple-field--art ripple-ambient')
+        ambient.evaluate("e => e.getAnimations({subtree:true}).forEach(a => { a.pause(); a.currentTime = 1000; })")
+        mobile.evaluate('() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))')
+        mobile.screenshot(path='artifacts/mobile-ambient-ripples.png')
         mobile.screenshot(path='artifacts/mobile-viewport.png')
     finally:
         touch.close()
-    print('PASS: pointer ripple rendering, pointer transparency, reduced-motion change, controls, resize, and touch opt-out.')
+    print('PASS: pointer ripple rendering, pointer transparency, reduced-motion change, controls, resize, continuous mobile ambient rings, offscreen pause, and reduced-motion opt-out.')
