@@ -158,5 +158,29 @@ with sync_playwright() as p:
    page.evaluate('() => window.__viewRefreshCallbacks[0]()')
    expect(article_number).to_have_text('1,234')
   assert page.locator('[data-counter-src]').get_attribute('src') is None,'Remote count refreshes must not increment counters'
+  # Exercise a phrase absent from metadata: this must be found in the body.
+  body_query=None
+  for post in posts:
+   for paragraph in post.get('body','').split('\n'):
+    phrase=paragraph.strip()[:18]
+    if len(phrase)>8 and not phrase.startswith('#') and phrase not in (post['title']+post['summary']+post['category']):
+     body_query=(post,phrase);break
+   if body_query:break
+  assert body_query,'Need a full-body search fixture'
+  post,phrase=body_query
+  page.goto(base+'?test=1')
+  page.locator('#search-input').fill(phrase)
+  page.locator('#search-form').evaluate('(form)=>form.requestSubmit()')
+  result=page.locator('#article-list article[data-slug="'+post['slug']+'"]')
+  expect(result).to_be_visible()
+  expect(result.locator('.search-context mark').first).to_have_text(phrase)
+  page.locator('#search-input').fill('this-query-has-no-results-123456')
+  page.locator('#search-form').evaluate('(form)=>form.requestSubmit()')
+  expect(page.locator('#empty-state')).to_be_visible()
+  page.locator('#search-input').fill('')
+  page.locator('#search-form').evaluate('(form)=>form.requestSubmit()')
+  expect(page.locator('#article-list article.card:visible')).to_have_count(len(posts))
+  expect(page.locator('#article-list mark')).to_have_count(0)
+  print('PASS: full-body-only search, highlighted context, empty results, and clearing search.')
   browser.close()
 print(f'PASS: {base} assets, latest/popular sorting, combined filters, KST today, history, inline generated images decoded on desktop/mobile, article layout, homepage/article remote view snapshots and article snapshot failure recovery.')

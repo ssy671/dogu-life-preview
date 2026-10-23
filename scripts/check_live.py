@@ -1,4 +1,5 @@
 import json,os,time,urllib.request
+import xml.etree.ElementTree as ET
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -38,6 +39,7 @@ def check_raster(path,body,ctype):
  assert valid,f'{path}: response is not a valid {suffix} image signature'
 paths={}
 if EXPECTED_BUILD:paths['data/build.json']=(EXPECTED_BUILD,'application/json')
+paths['feed.xml']=('<rss','application/xml')
 paths.update({'':('id="sort-select"','text/html'),'data/posts.json':('published_at','application/json'),'static/site.js':('popular','application/javascript'),'static/upgrade.css':('today','text/css')})
 if public_check:
  paths.update({'about/':('도구생활 소개','text/html'),'contact/':(site_config['contact_email'],'text/html'),'privacy/':('개인 맞춤 광고','text/html'),'robots.txt':('Sitemap: '+BASE+'sitemap.xml','text/plain'),'sitemap.xml':(BASE+'post/','application/xml'),'ads.txt':('google.com, '+client.removeprefix('ca-')+', DIRECT, f08c47fec0942fa0','text/plain')})
@@ -56,6 +58,21 @@ for attempt in range(1,13):
     if path in image_paths:check_raster(path,payload,r.headers.get_content_type())
     else:
      body=payload.decode('utf-8');assert expected in body,path
+     if path=='feed.xml':
+      items=ET.fromstring(body).findall('channel/item')
+      assert len(items)==len(posts),'RSS must include every published post'
+      expected_links={BASE+'post/'+p['slug']+'/' for p in posts}
+      assert {item.findtext('link') for item in items}==expected_links,'RSS article links must use this host'
+     if path=='data/posts.json':
+      indexed={p['slug']:p for p in json.loads(body)}
+      assert all(indexed[p['slug']].get('body')==p['body'] for p in posts),'Full-body search index is stale'
+     if path=='static/site.js':assert 'renderCardText' in body and 'replaceChildren(fragment)' in body,'Search highlighting code missing'
+     if ctype=='text/html':
+      assert 'rel="alternate" type="application/rss+xml"' in body,'RSS discovery missing'
+      assert 'RSS 구독' in body,'RSS subscription link missing'
+     if path.startswith('post/'):
+      assert 'class="article-toc"' in body,'Article TOC missing'
+      assert 'class="section-link"' in body,'Section permalinks missing'
      if path=='data/build.json':assert json.loads(body).get('fingerprint')==EXPECTED_BUILD,'The expected site version has not deployed yet'
      if public_check and ctype=='text/html':
       head=body.split('</head>',1)[0]
@@ -72,6 +89,7 @@ for attempt in range(1,13):
       parser=InlineImageParser();parser.feed(body)
       assert article_images[path] in parser.images,f'{path}: mapped illustration missing from article body'
   print(f'PASS: {BASE} homepage, sorting controls, data, {len(posts)} article pages, their SVG diagrams and {len(image_paths)} generated raster illustrations are live.')
+  print('PASS: live RSS XML and article links, complete body-search index, safe search assets, TOCs and section links.')
   if public_check:print('PASS: AdSense script/account on every page, ads.txt, stable canonicals, crawler access, sitemap, privacy and public contact are live.')
   if EXPECTED_BUILD:print('PASS: live site matches expected build '+EXPECTED_BUILD)
   break
