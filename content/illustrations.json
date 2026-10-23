@@ -502,21 +502,5 @@
     "after_heading": "반복이 분명한 작은 연결을 고르세요",
     "width": 1536,
     "height": 1024
-  },
-  "seal-keycap-blender-v1-v2": {
-    "file": "static/illustrations/seal-keycap-v1-v2-comparison.webp",
-    "alt": "왼쪽은 6mm 베이스의 물범 키캡 v1, 오른쪽은 8mm 베이스와 둥근 머리의 v2 Blender 모델 렌더",
-    "caption": "Blender 모델 렌더: 왼쪽 v1, 오른쪽 v2. 실제 출력물 사진이 아니며 출력·스위치 결합은 아직 검증하지 않았습니다.",
-    "after_heading": "v2 높이만 늘리지 않고 연결도 함께 수정",
-    "width": 1500,
-    "height": 900
-  },
-  "seal-keycap-stl-size-mesh-check": {
-    "file": "static/illustrations/seal-keycap-v1-v2-comparison.webp",
-    "alt": "왼쪽은 6mm 베이스의 물범 키캡 v1, 오른쪽은 8mm 베이스와 둥근 머리의 v2 Blender 모델 렌더",
-    "caption": "Blender 모델 렌더: 왼쪽 v1, 오른쪽 v2. 실제 출력물 사진이 아니며 출력·스위치 결합은 아직 검증하지 않았습니다.",
-    "after_heading": "설계 치수와 전체 치수부터 구분하기",
-    "width": 1500,
-    "height": 900
   }
 }

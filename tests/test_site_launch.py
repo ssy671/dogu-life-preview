@@ -73,6 +73,10 @@ class SiteLaunchTests(unittest.TestCase):
         self.assertGreater(len(files), 4)
         for file in files:
             source = file.read_text()
+            if file.name == '404.html':
+                self.assertIn('noindex', source)
+                self.assertNotIn('adsbygoogle', source)
+                continue
             tags = Tags(source)
             directory = file.relative_to(self.docs).parent.as_posix()
             path = '/' if directory == '.' else '/' + directory + '/'
