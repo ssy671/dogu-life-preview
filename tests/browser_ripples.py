@@ -71,6 +71,19 @@ def check_ripples(page, base):
         mobile.evaluate('() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))')
         mobile.screenshot(path='artifacts/mobile-ambient-ripples.png')
         mobile.screenshot(path='artifacts/mobile-viewport.png')
+        # Native color preference is not browser-specific forced-dark conversion.
+        for width, height in [(390, 844), (900, 1200)]:
+            mobile.set_viewport_size({'width': width, 'height': height})
+            for scheme in ['light', 'dark']:
+                mobile.emulate_media(color_scheme=scheme)
+                expect(ambient).to_have_class('ripple-field ripple-field--art ripple-ambient')
+                assert mobile.evaluate('document.documentElement.scrollWidth <= innerWidth + 1')
+                assert ambient.evaluate("e => getComputedStyle(e, '::before').boxShadow") != 'none'
+                assert ambient.evaluate("e => getComputedStyle(e, '::before').pointerEvents") == 'none'
+                ambient.evaluate("e => e.getAnimations({subtree:true}).forEach(a => { a.pause(); a.currentTime = 684; })")
+                mobile.evaluate('() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))')
+                mobile.screenshot(path=f'artifacts/mobile-contrast-{width}-{scheme}.png')
+
     finally:
         touch.close()
     print('PASS: pointer ripple rendering, pointer transparency, reduced-motion change, controls, resize, continuous mobile ambient rings, offscreen pause, and reduced-motion opt-out.')

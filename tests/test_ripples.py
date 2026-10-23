@@ -24,3 +24,13 @@ class RippleTests(unittest.TestCase):
         js = (ROOT / 'docs/static/ripples.js').read_text()
         for api in ['fetch(', 'localStorage', 'sessionStorage', 'sendBeacon', 'setInterval']:
             self.assertNotIn(api, js)
+
+    def test_ambient_contrast_keeps_bounded_motion(self):
+        css = (ROOT / 'docs/static/upgrade.css').read_text()
+        ambient = css.split('.ripple-ambient::before, .ripple-ambient::after {', 1)[1]
+        self.assertIn('border: 1.5px solid #3f6b50', ambient)
+        self.assertIn('box-shadow: 0 0 0 .75px rgba(248, 255, 237, .85)', ambient)
+        self.assertIn('18% { opacity: .46; }', ambient)
+        self.assertIn('3.8s ease-out infinite', ambient)
+        self.assertIn('animation-delay: -1.9s', ambient)
+        self.assertNotIn('prefers-color-scheme', ambient)
