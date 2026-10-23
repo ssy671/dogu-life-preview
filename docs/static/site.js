@@ -100,6 +100,69 @@
   const emptyState = document.getElementById('empty-state');
   const todayList = document.getElementById('today-list');
   const normalize = (value) => String(value || '').normalize('NFKC').toLocaleLowerCase('ko-KR');
+  // Match normalized text, but keep offsets into the original spelling for display.
+  const segmenter = typeof Intl.Segmenter === 'function' ? new Intl.Segmenter('ko-KR', { granularity: 'grapheme' }) : null;
+  function searchable(value) {
+    const text = String(value || '');
+    const segments = segmenter ? segmenter.segment(text) : Array.from(text, (segment) => ({ segment }));
+    let normalized = '', offset = 0;
+    const starts = [], ends = [];
+    for (const { segment } of segments) {
+      const part = normalize(segment);
+      for (let i = 0; i < part.length; i += 1) {
+        starts.push(offset);
+        ends.push(offset + segment.length);
+      }
+      normalized += part;
+      offset += segment.length;
+    }
+    return { text, normalized, starts, ends };
+  }
+  function matchRanges(source, needle) {
+    const ranges = [];
+    if (!needle) return ranges;
+    let offset = 0, index;
+    while ((index = source.normalized.indexOf(needle, offset)) !== -1) {
+      const start = source.starts[index], end = source.ends[index + needle.length - 1];
+      if (ranges.length && start <= ranges[ranges.length - 1][1]) ranges[ranges.length - 1][1] = end;
+      else ranges.push([start, end]);
+      offset = index + needle.length;
+    }
+    return ranges;
+  }
+  function highlight(element, source, needle, context = false) {
+    if (!element) return;
+    const ranges = matchRanges(source, needle);
+    const start = context && ranges.length ? Math.max(0, ranges[0][0] - 55) : 0;
+    const end = context && ranges.length ? Math.min(source.text.length, Math.max(start + 170, ranges[0][1] + 55)) : source.text.length;
+    const fragment = document.createDocumentFragment();
+    if (start) fragment.append('…');
+    let offset = start;
+    ranges.filter(([left, right]) => left < end && right > start).forEach(([left, right]) => {
+      fragment.append(source.text.slice(offset, left));
+      const mark = document.createElement('mark');
+      mark.textContent = source.text.slice(left, Math.min(right, end));
+      fragment.append(mark);
+      offset = Math.min(right, end);
+    });
+    fragment.append(source.text.slice(offset, end));
+    if (end < source.text.length) fragment.append('…');
+    // Never interpret content or search input as HTML.
+    element.replaceChildren(fragment);
+  }
+  const searchIndex = new Map(availablePosts.map((post) => [post.slug, {
+    title: searchable(post.title), summary: searchable(post.summary), category: searchable(post.category),
+    body: searchable(String(post.body || '').replace(/^#{1,6}\s+/gm, '').replace(/\s+/g, ' ').trim())
+  }]));
+  function renderCardText(card, post, needle = '') {
+    const source = searchIndex.get(post.slug);
+    const bodyMatch = needle && !source.summary.normalized.includes(needle) && source.body.normalized.includes(needle);
+    highlight(card.querySelector('h3'), source.title, needle);
+    highlight(card.querySelector('.eyebrow'), source.category, needle);
+    const summary = card.querySelector('.card-copy p');
+    highlight(summary, bodyMatch ? source.body : source.summary, needle, Boolean(bodyMatch));
+    if (summary) summary.classList.toggle('search-context', Boolean(bodyMatch));
+  }
   let state;
   let inputTimer;
 
@@ -123,6 +186,7 @@
       featured.forEach((post) => {
         const card = nodes.get(post.slug).cloneNode(true);
         card.hidden = false;
+        renderCardText(card, post);
         // The repeated cards must not introduce duplicate document IDs.
         card.removeAttribute('id');
         card.querySelectorAll('[id]').forEach((element) => element.removeAttribute('id'));
@@ -186,9 +250,10 @@
     ordered.forEach((post) => {
       const matches = (!state.category || post.category === state.category) &&
         (!state.day || postDate(post) === today) &&
-        (!needle || normalize(`${post.title || ''} ${post.summary || ''} ${post.category || ''}`).includes(needle));
+        (!needle || Object.values(searchIndex.get(post.slug)).some((source) => source.normalized.includes(needle)));
       const card = nodes.get(post.slug);
       card.hidden = !matches;
+      renderCardText(card, post, matches ? needle : '');
       if (matches) visible += 1;
       fragment.append(card);
     });

@@ -2,6 +2,7 @@
 import argparse,html,json,math,re,os,sys
 import xml.etree.ElementTree as ET
 from datetime import datetime,timezone
+from email.utils import format_datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -31,7 +32,7 @@ def day(post):return datetime.fromisoformat(post['published_at']).astimezone(KST
 def order(post):return (datetime.fromisoformat(post['published_at']).timestamp(),post['sequence'],post['slug'])
 def figure(post):return PREFIX+'static/diagrams/'+post['slug']+'.svg'
 def minutes(post):return max(1,math.ceil(len(post['body'])/600))
-def public(post):return {k:post[k] for k in ['slug','title','category','summary','published_at','sequence']}|{'date':day(post),'reading_minutes':minutes(post)}
+def public(post):return {k:post[k] for k in ['slug','title','category','summary','body','published_at','sequence']}|{'date':day(post),'reading_minutes':minutes(post)}
 
 def icon(kind,x,y):
     shapes={
@@ -68,8 +69,35 @@ def body_chunks(body):
         chunks.extend(block for block in section.strip('\n').split('\n\n') if block)
     return chunks
 
-def prose(body):
-    return ''.join('<h2>'+esc(b[3:])+'</h2>' if b.startswith('## ') else '<p>'+esc(b).replace('\n','<br>')+'</p>' for b in body_chunks(body))
+def section_ids(chunks):
+    """Readable, deterministic fragments; unrelated new headings do not renumber links."""
+    import unicodedata
+    used=set();ids={}
+    for index,chunk in enumerate(chunks):
+        if not chunk.startswith('## '):continue
+        title=unicodedata.normalize('NFC',chunk[3:].strip()).casefold()
+        base='section-'+(re.sub(r'[^\w]+','-',title,flags=re.UNICODE).strip('-_') or 'untitled')
+        anchor=base;suffix=2
+        while anchor in used:
+            anchor=f'{base}-{suffix}';suffix+=1
+        used.add(anchor);ids[index]=anchor
+    return ids
+
+def prose(body,ids=None):
+    chunks=body_chunks(body)
+    ids=section_ids(chunks) if ids is None else ids
+    parts=[]
+    for index,chunk in enumerate(chunks):
+        if chunk.startswith('## '):
+            title=chunk[3:];anchor=ids[index]
+            parts.append(f'<h2 id="{esc(anchor)}">{esc(title)} <a class="section-link" href="#{esc(anchor)}" aria-label="{esc(title)} 구간 링크">#</a></h2>')
+        else:parts.append('<p>'+esc(chunk).replace('\n','<br>')+'</p>')
+    return ''.join(parts)
+
+def table_of_contents(chunks,ids):
+    if not ids:return ''
+    links=''.join(f'<li><a href="#{esc(anchor)}">{esc(chunks[index][3:])}</a></li>' for index,anchor in ids.items())
+    return f'<nav class="article-toc" aria-label="이 글의 목차"><p><strong>이 글의 목차</strong></p><ol>{links}</ol></nav>'
 
 def illustration_position(chunks,after_heading=None,diagram_position=None):
     if after_heading:
@@ -124,10 +152,10 @@ def illustration_figure(details):
     return f'<figure class="post-figure article-illustration"><img src="{PREFIX}{esc(details["file"])}" alt="{esc(details["alt"])}" width="{details.get("width",1536)}" height="{details.get("height",1024)}" loading="lazy" decoding="async"><figcaption>{esc(details["caption"])}</figcaption></figure>'
 
 def shell(title,body,description='',article=None,path=''):
-    head=''
+    head=f'<link rel="alternate" type="application/rss+xml" title="도구생활 RSS" href="{PREFIX}feed.xml">'
     page_path='post/'+article['slug']+'/' if article else path
     if SITE:
-        head=f'<link rel="canonical" href="{esc(SITE+"/"+page_path)}">'
+        head+=f'<link rel="canonical" href="{esc(SITE+"/"+page_path)}">'
     if article and SITE:
         url=SITE+'/post/'+article['slug']+'/'
         data={'@context':'https://schema.org','@type':'BlogPosting','headline':article['title'],'description':article['summary'],'datePublished':article['published_at'],'author':{'@type':'Organization','name':'도구생활'},'image':SITE+'/static/diagrams/'+article['slug']+'.svg','mainEntityOfPage':url}
@@ -137,7 +165,7 @@ def shell(title,body,description='',article=None,path=''):
     if ADSENSE_CLIENT:
         head+=f'<meta name="google-adsense-account" content="{esc(ADSENSE_CLIENT)}"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={esc(ADSENSE_CLIENT)}" crossorigin="anonymous"></script>'
     robots='index,follow' if PUBLIC_SITE else 'noindex,nofollow'
-    return f'''<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(title)} · 도구생활</title><meta name="description" content="{esc(description or '디지털 생활과 업무를 가볍게 만드는 도구 활용 가이드')}"><meta name="robots" content="{robots}"><meta name="theme-color" content="#183e37"><link rel="stylesheet" href="{PREFIX}static/style.css"><link rel="stylesheet" href="{PREFIX}static/upgrade.css">{head}<script defer src="{PREFIX}static/site.js"></script><script defer src="{PREFIX}static/counter.js"></script></head><body data-views-source="{esc(VIEWS_SOURCE)}"><header><a class="brand" href="{PREFIX}">도구생활<span>TOOLS FOR EVERYDAY</span></a><nav><a href="{PREFIX}">글 읽기</a><a href="{PREFIX}about/">소개</a></nav></header><main>{body}</main><footer><div><b>도구생활</b><p>복잡한 디지털 일상을, 한 편의 글로 가볍게.</p></div><div><a href="{PREFIX}privacy/">개인정보 처리방침</a> · <a href="{PREFIX}contact/">문의</a><p>© {datetime.now(KST).year} 도구생활</p></div></footer></body></html>'''
+    return f'''<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(title)} · 도구생활</title><meta name="description" content="{esc(description or '디지털 생활과 업무를 가볍게 만드는 도구 활용 가이드')}"><meta name="robots" content="{robots}"><meta name="theme-color" content="#183e37"><link rel="stylesheet" href="{PREFIX}static/style.css"><link rel="stylesheet" href="{PREFIX}static/upgrade.css">{head}<script defer src="{PREFIX}static/site.js"></script><script defer src="{PREFIX}static/counter.js"></script></head><body data-views-source="{esc(VIEWS_SOURCE)}"><header><a class="brand" href="{PREFIX}">도구생활<span>TOOLS FOR EVERYDAY</span></a><nav><a href="{PREFIX}">글 읽기</a><a href="{PREFIX}about/">소개</a></nav></header><main>{body}</main><footer><div><b>도구생활</b><p>복잡한 디지털 일상을, 한 편의 글로 가볍게.</p></div><div><a href="{PREFIX}privacy/">개인정보 처리방침</a> · <a href="{PREFIX}contact/">문의</a> · <a href="{PREFIX}feed.xml" type="application/rss+xml">RSS 구독</a><p>© {datetime.now(KST).year} 도구생활</p></div></footer></body></html>'''
 
 def card(post,views,today):
     count=views.get('counts',{}).get(post['slug'],0);date=day(post);badge='' if date==today else ' hidden'
@@ -159,17 +187,40 @@ def article(post,posts,views,illustration=None):
     chunks=body_chunks(post['body']);pivot=next((i for i in range(2,len(chunks)) if chunks[i].startswith('## ')),len(chunks))
     diagram_html=f'<figure class="post-figure"><img src="{figure(post)}" alt="{esc(labels)}" width="960" height="480" loading="lazy"><figcaption>{esc(labels)}</figcaption></figure>'
     image_position=illustration_position(chunks,illustration.get('after_heading'),pivot) if illustration else None
+    ids=section_ids(chunks);toc=table_of_contents(chunks,ids)
     parts=[]
     for position,chunk in enumerate(chunks,1):
-        parts.append(prose(chunk))
+        parts.append(prose(chunk,{0:ids[position-1]} if position-1 in ids else {}))
         if position==pivot:parts.append(diagram_html)
         if position==image_position:parts.append(illustration_figure(illustration))
     text=''.join(parts)
     related=[p for p in sorted(posts,key=order,reverse=True) if p['category']==post['category'] and p['slug']!=post['slug']][:3]
     links=''.join(f'<li><a href="{PREFIX}post/{p["slug"]}/">{esc(p["title"])}</a></li>' for p in related)
-    body=f'''<article class="reading"><a href="{PREFIX}#articles">← 전체 글</a><span class="eyebrow">{esc(post['category'])}</span><h1>{esc(post['title'])}</h1><p class="lead">{esc(post['summary'])}</p><div class="meta reading-meta"><span>도구생활 편집부 · {date} · {minutes(post)}분 읽기</span><span class="new-badge" data-date="{date}" hidden>NEW</span><span class="view-count">조회 <span data-view-number data-view-slug="{esc(post['slug'])}">{count:,}</span> <small>(매시간 반영)</small></span></div>{art}<div class="prose">{text}</div><div class="article-counter"><img data-counter-src="https://hits.sh/ssy671.github.io/dogu-life-preview/post/{post['slug']}.svg?label=views&amp;color=183e37" alt="이 글의 누적 조회수" width="92" height="20" referrerpolicy="no-referrer"><p>조회수는 외부 서비스로 집계하며 새로고침·봇 요청이 포함될 수 있습니다.</p></div><aside class="related-posts"><h2>함께 읽으면 좋은 글</h2><ul>{links}</ul></aside></article>'''
+    body=f'''<article class="reading"><a href="{PREFIX}#articles">← 전체 글</a><span class="eyebrow">{esc(post['category'])}</span><h1>{esc(post['title'])}</h1><p class="lead">{esc(post['summary'])}</p><div class="meta reading-meta"><span>도구생활 편집부 · {date} · {minutes(post)}분 읽기</span><span class="new-badge" data-date="{date}" hidden>NEW</span><span class="view-count">조회 <span data-view-number data-view-slug="{esc(post['slug'])}">{count:,}</span> <small>(매시간 반영)</small></span></div>{art}{toc}<div class="prose">{text}</div><div class="article-counter"><img data-counter-src="https://hits.sh/ssy671.github.io/dogu-life-preview/post/{post['slug']}.svg?label=views&amp;color=183e37" alt="이 글의 누적 조회수" width="92" height="20" referrerpolicy="no-referrer"><p>조회수는 외부 서비스로 집계하며 새로고침·봇 요청이 포함될 수 있습니다.</p></div><aside class="related-posts"><h2>함께 읽으면 좋은 글</h2><ul>{links}</ul></aside></article>'''
     body+=f'<script id="view-data" type="application/json">{dump({"updated_at":views.get("updated_at"),"counts":{post["slug"]:count}})}</script>'
     return shell(post['title'],body,post['summary'],post)
+
+def rss(posts):
+    """Build RSS from published posts only, using absolute canonical article URLs."""
+    site=SITE or PRODUCTION_SITE or 'https://ssy671.github.io/dogu-life-preview'
+    feed=ET.Element('rss',version='2.0')
+    channel=ET.SubElement(feed,'channel')
+    for name,value in [('title','도구생활'),('link',site+'/'),
+                       ('description','디지털 정리·업무 습관·도구 활용을 다루는 한국어 블로그'),
+                       ('language','ko-KR')]:
+        ET.SubElement(channel,name).text=value
+    ordered=sorted(posts,key=order,reverse=True)
+    if ordered:
+        ET.SubElement(channel,'lastBuildDate').text=format_datetime(datetime.fromisoformat(ordered[0]['published_at']).astimezone(timezone.utc),usegmt=True)
+    for post in ordered:
+        item=ET.SubElement(channel,'item')
+        url=site+'/post/'+post['slug']+'/'
+        for name,value in [('title',post['title']),('link',url),('description',post['summary']),
+                           ('category',post['category']),
+                           ('pubDate',format_datetime(datetime.fromisoformat(post['published_at']).astimezone(timezone.utc),usegmt=True))]:
+            ET.SubElement(item,name).text=value
+        ET.SubElement(item,'guid',isPermaLink='true').text=url
+    return '<?xml version="1.0" encoding="utf-8"?>\n'+ET.tostring(feed,encoding='unicode')+'\n'
 
 def build(now=None):
     now=now or datetime.now(timezone.utc);posts=load('content/posts.json');views=load('content/views.json');docs=ROOT/'docs'
@@ -184,6 +235,7 @@ def build(now=None):
         (diagrams/(p['slug']+'.svg')).write_text(diagram(p))
         target=docs/'post'/p['slug']/'index.html';target.parent.mkdir(parents=True,exist_ok=True);target.write_text(article(p,posts,views,illustrations.get(p['slug'])))
     (docs/'index.html').write_text(home(posts,views,now))
+    (docs/'feed.xml').write_text(rss(posts),encoding='utf-8')
     (docs/'data').mkdir(exist_ok=True)
     (docs/'data/posts.json').write_text(dump([public(p) for p in posts]))
     (docs/'data/views.json').write_text(dump(views))

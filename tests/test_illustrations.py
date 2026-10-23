@@ -45,7 +45,7 @@ class ArticleIllustrationTests(unittest.TestCase):
         prose = rendered.split('<div class="prose">', 1)[1].split('</div>', 1)[0]
         illustration_at = prose.index('<figure class="post-figure article-illustration">')
         self.assertLess(prose.index('<p>두 번째 절의 마지막 문단.</p>'), illustration_at)
-        self.assertLess(illustration_at, prose.index('<h2>세 번째</h2>'))
+        self.assertLess(illustration_at, prose.index(self.module.prose('## 세 번째')))
         for paragraph in self.post['body'].split('\n\n'):
             self.assertIn(self.module.prose(paragraph), prose)
         self.assertEqual(prose.count('static/diagrams/organize-work-folders.svg'), 1)
@@ -62,7 +62,7 @@ class ArticleIllustrationTests(unittest.TestCase):
         figure_at = prose.index('<figure class="post-figure article-illustration">')
         self.assertTrue(prose[:figure_at].endswith('</p>'))
         self.assertLess(prose.index('static/diagrams/'), figure_at)
-        self.assertGreater(figure_at, prose.index('<h2>두 번째</h2>'))
+        self.assertGreater(figure_at, prose.index(self.module.prose('## 두 번째')))
         self.assertLess(figure_at, prose.index('<p>마지막 절의 문단.</p>'))
 
     def test_single_newline_after_heading_preserves_paragraphs_and_exact_placement(self):
@@ -79,13 +79,13 @@ class ArticleIllustrationTests(unittest.TestCase):
         rendered = self.module.article(self.post, [self.post], {}, mapped)
         prose = rendered.split('<div class="prose">', 1)[1].split('</div>', 1)[0]
         self.assertIn('<p>처음 읽는 문단.<br>이어지는 설명.</p>', prose)
-        self.assertIn('<h2>첫 번째</h2><p>첫 절의 첫 문단.<br>같은 문단의 두 번째 줄.</p>', prose)
+        self.assertIn(self.module.prose('## 첫 번째') + '<p>첫 절의 첫 문단.<br>같은 문단의 두 번째 줄.</p>', prose)
         self.assertIn('<p>첫 절의 마지막 문단.</p>', prose)
-        self.assertIn('<h2>두 번째</h2><p>두 번째 절의 첫 문단.</p>', prose)
-        self.assertIn('<h2>세 번째</h2><p>마지막 절의 문단.</p>', prose)
+        self.assertIn(self.module.prose('## 두 번째') + '<p>두 번째 절의 첫 문단.</p>', prose)
+        self.assertIn(self.module.prose('## 세 번째') + '<p>마지막 절의 문단.</p>', prose)
         illustration_at = prose.index('<figure class="post-figure article-illustration">')
         self.assertTrue(prose[:illustration_at].endswith('<p>두 번째 절의 마지막 문단.</p>'))
-        self.assertLess(illustration_at, prose.index('<h2>세 번째</h2>'))
+        self.assertLess(illustration_at, prose.index(self.module.prose('## 세 번째')))
         self.assertEqual(prose.count('static/diagrams/organize-work-folders.svg'), 1)
 
     def test_unmapped_article_and_absent_manifest_keep_original_figures(self):

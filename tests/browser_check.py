@@ -40,6 +40,16 @@ fixture={'updated_at':'2026-10-15T00:00:00Z','counts':{posts[0]['slug']:300,post
 home=re.sub(r'(<script id="view-data" type="application/json">).*?(</script>)',lambda m:m[1]+json.dumps(fixture)+m[2],home)
 home=re.sub(r'\sdata-views-source="[^"]*"',' data-views-source=""',home)
 def check_article(page,label):
+ toc=page.locator('.article-toc a')
+ expect(toc).not_to_have_count(0)
+ fragment=toc.first.get_attribute('href')
+ toc.first.click()
+ assert page.evaluate("decodeURIComponent(location.hash.slice(1))") == fragment[1:]
+ target=page.locator('.prose h2').first
+ expect(target).to_have_attribute('id',fragment[1:])
+ expect(target.locator('.section-link')).to_have_attribute('href',fragment)
+ page.reload()
+ expect(page.locator('.prose h2:target')).to_have_count(1)
  picture=page.locator('.post-figure img').last;picture.scroll_into_view_if_needed()
  page.wait_for_function("Array.from(document.querySelectorAll('.post-figure img')).every(i=>i.complete&&i.naturalWidth>0)")
  if illustrated_post:

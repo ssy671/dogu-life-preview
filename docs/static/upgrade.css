@@ -99,3 +99,7 @@ footer a { display: inline-block; }
   .card { transition: none; }
   .card:hover { transform: none; }
 }
+
+/* Search uses text nodes; marks emphasize literal, normalized matches. */
+.card-copy mark { background: #e4efac; color: #183e37; border-radius: 2px; padding: 0 .05em; }
+.card-copy p.search-context { color: var(--ink); }
