@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-23T03:41:52.044548Z",
+  "updated_at": "2026-10-23T11:44:25.472529Z",
   "counts": {
     "check-email-in-windows": 1,
     "name-files-consistently": 1,
@@ -41,7 +41,7 @@
     "clean-copied-table-format": 0,
     "agree-work-request-scope": 0,
     "clean-personal-contact-list": 0,
-    "report-progress-before-completion": 0,
-    "prepare-materials-for-video-meeting": 0
+    "report-progress-before-completion": 1,
+    "prepare-materials-for-video-meeting": 1
   }
 }
