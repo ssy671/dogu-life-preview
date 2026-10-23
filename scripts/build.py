@@ -244,6 +244,8 @@ def rss(posts):
 
 def build(now=None):
     now=now or datetime.now(timezone.utc);posts=load('content/posts.json');views=load('content/views.json');docs=ROOT/'docs'
+    published_slugs={p['slug'] for p in posts}
+    views={**views,'counts':{slug:count for slug,count in views.get('counts',{}).items() if slug in published_slugs}}
     assert len({p['slug'] for p in posts})==len(posts),'Duplicate slug'
     for p in posts:
         assert re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*',p['slug'])

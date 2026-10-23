@@ -22,4 +22,5 @@ class WithdrawnArticles(unittest.TestCase):
   posts=json.loads((ROOT/'content/posts.json').read_text())
   rendered=build.home(posts,{},datetime.now(timezone.utc))+build.rss(posts)
   for slug in SLUGS:self.assertNotIn(slug,rendered)
+  self.assertIn('if slug in published_slugs',(ROOT/'scripts/build.py').read_text())
 if __name__=='__main__':unittest.main()
