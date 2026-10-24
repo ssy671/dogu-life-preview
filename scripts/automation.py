@@ -6,7 +6,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 INPUTS = ('scripts/build.py', 'scripts/automation.py', 'content/posts.json',
-          'content/illustrations.json', 'content/site.json')
+          'content/illustrations.json', 'content/site.json',
+          'scripts/discoveries.py', 'content/discoveries.json')
 
 
 def render_fingerprint(root=ROOT):
