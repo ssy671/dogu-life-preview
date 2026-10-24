@@ -29,7 +29,7 @@ with sync_playwright() as p:
             expect(page.locator('#article-list article')).to_have_count(len(json.loads((ROOT/'content/posts.json').read_text())))
             expect(page.locator('.discovery-teaser')).to_be_visible()
             page.locator('header nav a',has_text='귀여운 발견').click()
-            expect(page.locator('h1')).to_have_text('귀여운 발견 ✳')
+            expect(page.locator('h1')).to_have_text('귀여운 발견')
             expect(page.locator('[aria-current="page"]')).to_have_text('귀여운 발견')
             expect(page.locator('.discovery-category')).to_have_count(3)
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), (width,mode)
