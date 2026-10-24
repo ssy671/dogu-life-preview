@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-23T19:06:38.778618Z",
+  "updated_at": "2026-10-24T00:36:59.074639Z",
   "counts": {
     "check-email-in-windows": 1,
     "name-files-consistently": 1,
@@ -44,6 +44,9 @@
     "report-progress-before-completion": 1,
     "prepare-materials-for-video-meeting": 1,
     "seal-keycap-blender-v1-v2": 1,
-    "seal-keycap-stl-size-mesh-check": 1
+    "seal-keycap-stl-size-mesh-check": 1,
+    "inventory-digital-subscriptions": 0,
+    "arrange-workspace-for-task-context": 0,
+    "adjust-plan-for-urgent-interruption": 0
   }
 }
