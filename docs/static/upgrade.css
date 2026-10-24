@@ -121,6 +121,65 @@ body > header, body > main, body > footer { position: relative; z-index: 1; back
 #search-status { color: var(--muted); font-size: .9rem; }
 #search-retry, #search-reset { margin: 0 .5rem 1rem 0; }
 
+/* Discovery shelf: original, static decoration; no product claims or extra requests. */
+header nav a { display: inline-flex; align-items: center; min-height: 44px; }
+header nav a[aria-current="page"] { text-decoration: underline; text-underline-offset: 7px; font-weight: 700; }
+.discovery-teaser { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 30px 38px; margin: 0 0 48px; border: 1px solid var(--line); border-radius: 18px; background: #eef1e5; }
+.discovery-teaser h2 { margin: 8px 0; }
+.discovery-teaser p { margin-bottom: 14px; color: var(--muted); font-size: 14px; }
+.discovery-teaser .discovery-art { width: 160px; flex: 0 0 160px; }
+.discovery-link { display: inline-block; padding: 10px 0; text-decoration: underline; text-underline-offset: 5px; font-size: 14px; font-weight: 600; }
+.discovery-intro { padding: 64px 0 50px; max-width: 760px; }
+.discovery-intro h1 { margin: 16px 0; }
+.discovery-intro h1 span { color: #8b664c; }
+.discovery-intro p { color: var(--muted); }
+.discovery-intro .discovery-lead { color: var(--ink); font-size: 20px; font-weight: 600; margin-bottom: 12px; }
+.discovery-section-head { display: flex; gap: 16px; align-items: baseline; justify-content: space-between; }
+.discovery-section-head h2 { font-size: 24px; }
+.discovery-section-head > span, .discovery-fine { font-size: 12px; color: var(--muted); }
+.discovery-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 20px; }
+.discovery-category { padding: 20px 24px 28px; border: 1px solid var(--line); border-radius: 18px; background: #f2f2e9; }
+.discovery-art { display: block; width: 100%; height: auto; max-height: 195px; }
+.discovery-badge { display: inline-block; border: 1px solid currentColor; border-radius: 30px; padding: 3px 10px; font-size: 11px; }
+.discovery-category h3 { font-size: 21px; margin: 14px 0 8px; }
+.discovery-category p { font-size: 14px; margin-bottom: 10px; }
+.discovery-category small { font-size: 12px; color: var(--muted); }
+.discovery-fine { margin: 14px 0 0; }
+.discovery-shelf { margin: 44px 0; }
+.discovery-empty { border: 1px dashed #9baa91; border-radius: 18px; padding: 40px 24px; text-align: center; }
+.discovery-empty h2 { margin: 18px 0 12px; }
+.discovery-empty p { color: var(--muted); }
+.discovery-guide { border-top: 1px solid var(--line); padding: 38px 0 12px; scroll-margin-top: 24px; }
+.discovery-guide h2 { margin-top: 12px; }
+.discovery-guide-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 30px; }
+.discovery-guide h3 { font-size: 16px; }
+.discovery-guide p { font-size: 14px; color: var(--muted); }
+.discovery-return { margin: 18px 0 48px; }
+.discovery-item { padding: 28px; border: 1px solid var(--line); border-radius: 18px; margin-bottom: 24px; }
+.discovery-item h2 { margin-top: 16px; }
+.discovery-item a { text-decoration: underline; }
+@media (max-width: 600px) {
+  header nav { gap: 16px; }
+  .discovery-intro { padding: 38px 0; }
+  .discovery-intro h1 { font-size: 38px; letter-spacing: -2px; }
+  .discovery-intro .discovery-lead { font-size: 17px; }
+  .discovery-grid, .discovery-guide-grid { grid-template-columns: 1fr; gap: 18px; }
+  .discovery-category { padding: 20px 24px; }
+  .discovery-art { max-height: 150px; }
+  .discovery-section-head { flex-wrap: wrap; gap: 0; margin-bottom: 20px; }
+  .discovery-section-head h2 { margin-bottom: 4px; width: 100%; }
+  .discovery-teaser { padding: 24px; position: relative; }
+  .discovery-teaser > div { position: relative; z-index: 1; }
+  .discovery-teaser .discovery-art { display: none; }
+}
+@media (prefers-color-scheme: dark) {
+  .discovery-teaser, .discovery-category { background: #233c34; color: #edf2e4; border-color: #567064; }
+  .discovery-teaser p, .discovery-category small { color: #ced9c9; }
+  .discovery-teaser .eyebrow { color: #d8ef89; }
+  .discovery-category .discovery-art { background: #e7ecdf; border-radius: 12px; margin-bottom: 16px; }
+  .discovery-teaser .discovery-link { color: #edf2e4; }
+}
+
 /* Coarse/touch devices: only two ambient rings inside the decorative hero. */
 .ripple-ambient::before, .ripple-ambient::after {
   content: ''; position: absolute; width: 160px; height: 160px; left: 12%; top: 68%;

@@ -108,7 +108,7 @@ class SiteLaunchTests(unittest.TestCase):
         urls = [element.text for element in tree.iter()
                 if element.tag.rsplit('}', 1)[-1] == 'loc']
         expected = {PRODUCTION + '/', PRODUCTION + '/about/',
-                    PRODUCTION + '/contact/', PRODUCTION + '/privacy/'}
+                    PRODUCTION + '/contact/', PRODUCTION + '/privacy/', PRODUCTION + '/discoveries/'}
         expected.update(PRODUCTION + '/' + file.relative_to(self.docs).parent.as_posix() + '/'
                         for file in (self.docs / 'post').rglob('index.html'))
         self.assertEqual(len(urls), len(set(urls)))

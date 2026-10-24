@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'scripts'))
 from automation import render_fingerprint
+import discoveries
 SITE_CONFIG=json.loads((ROOT/'content/site.json').read_text()) if (ROOT/'content/site.json').exists() else {}
 PRODUCTION_SITE=SITE_CONFIG.get('production_url','').rstrip('/')
 IS_WORKERS_BUILD=bool(os.getenv('WORKERS_CI'))
@@ -184,8 +185,9 @@ def shell(title,body,description='',article=None,path=''):
         head+=f'<meta name="google-site-verification" content="{esc(SITE_CONFIG["google_site_verification"])}">'
     if ADSENSE_CLIENT:
         head+=f'<meta name="google-adsense-account" content="{esc(ADSENSE_CLIENT)}"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={esc(ADSENSE_CLIENT)}" crossorigin="anonymous"></script>'
+    discovery_current=' aria-current="page"' if path=='discoveries/' else ''
     robots='index,follow' if PUBLIC_SITE else 'noindex,nofollow'
-    return f'''<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(title)} · 도구생활</title><meta name="description" content="{esc(description or '디지털 생활과 업무를 가볍게 만드는 도구 활용 가이드')}"><meta name="robots" content="{robots}"><meta name="theme-color" content="#183e37"><link rel="stylesheet" href="{PREFIX}static/style.css"><link rel="stylesheet" href="{PREFIX}static/upgrade.css">{head}<script defer src="{PREFIX}static/site.js"></script><script defer src="{PREFIX}static/counter.js"></script><script defer src="{PREFIX}static/ripples.js"></script></head><body data-views-source="{esc(VIEWS_SOURCE)}"><header><a class="brand" href="{PREFIX}">도구생활<span>TOOLS FOR EVERYDAY</span></a><nav><a href="{PREFIX}">글 읽기</a><a href="{PREFIX}about/">소개</a></nav></header><main>{body}</main><footer><div><b>도구생활</b><p>복잡한 디지털 일상을, 한 편의 글로 가볍게.</p></div><div><a href="{PREFIX}privacy/">개인정보 처리방침</a> · <a href="{PREFIX}contact/">문의</a> · <a href="{PREFIX}feed.xml" type="application/rss+xml">RSS 구독</a><p>© {datetime.now(KST).year} 도구생활</p></div></footer></body></html>'''
+    return f'''<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(title)} · 도구생활</title><meta name="description" content="{esc(description or '디지털 생활과 업무를 가볍게 만드는 도구 활용 가이드')}"><meta name="robots" content="{robots}"><meta name="theme-color" content="#183e37"><link rel="stylesheet" href="{PREFIX}static/style.css"><link rel="stylesheet" href="{PREFIX}static/upgrade.css">{head}<script defer src="{PREFIX}static/site.js"></script><script defer src="{PREFIX}static/counter.js"></script><script defer src="{PREFIX}static/ripples.js"></script></head><body data-views-source="{esc(VIEWS_SOURCE)}"><header><a class="brand" href="{PREFIX}">도구생활<span>TOOLS FOR EVERYDAY</span></a><nav aria-label="주 탐색"><a href="{PREFIX}">글 읽기</a><a href="{PREFIX}discoveries/"{discovery_current}>귀여운 발견</a><a href="{PREFIX}about/">소개</a></nav></header><main>{body}</main><footer><div><b>도구생활</b><p>복잡한 디지털 일상을, 한 편의 글로 가볍게.</p></div><div><a href="{PREFIX}privacy/">개인정보 처리방침</a> · <a href="{PREFIX}contact/">문의</a> · <a href="{PREFIX}feed.xml" type="application/rss+xml">RSS 구독</a><p>© {datetime.now(KST).year} 도구생활</p></div></footer></body></html>'''
 
 def card(post,views,today):
     count=views.get('counts',{}).get(post['slug'],0);date=day(post);badge='' if date==today else ' hidden'
@@ -197,6 +199,7 @@ def home(posts,views,now):
     hero=f'''<section class="hero"><div><span class="eyebrow">DIGITAL LIFE, SIMPLIFIED</span><h1>도구는 덜 복잡하게.<br>일상은 더 여유롭게.</h1><p>파일 정리부터 집중하는 업무 습관까지.<br>매일 오전 9시, 새로운 글 세 편으로 만나세요.</p><a id="today-link" class="button" href="#today-list">{cta}</a></div><div class="hero-art"><span class="orbit">↗</span><div class="note"><small>작은 변화, 큰 여유</small><strong>정리하고.<br>집중하고.<br>가볍게.</strong><span>YOUR EVERYDAY TOOLKIT</span></div><i class="dot"></i></div></section>'''
     hero+=f'''<section class="today-section" aria-labelledby="today-heading"><div class="section-head"><div><span class="eyebrow">DAILY THREE</span><h2 id="today-heading">{heading}</h2><p id="today-description">하루에 세 편, 오늘 적용할 수 있는 작은 방법을 읽어보세요.</p></div></div><div class="articles" id="today-list">{''.join(card(p,views,today) for p in featured)}</div></section>'''
     tabs=''.join(f'<a class="{"active" if not cat else ""}" data-category="{esc(cat)}" href="?category={esc(cat)}#articles">{cat or "전체 글"}</a>' for cat in ['']+CATEGORIES)
+    hero+=discoveries.teaser(PREFIX)
     body=hero+f'''<section id="articles"><div class="section-head"><div><span class="eyebrow">THE JOURNAL</span><h2>일상을 바꾸는 읽을거리</h2></div><form id="search-form" class="search"><input id="search-input" name="q" aria-label="글 검색" placeholder="궁금한 도구나 습관 검색"><button>검색</button></form></div><div class="categories" id="category-tabs">{tabs}</div><div class="browse-toolbar"><div class="browse-controls"><label class="sort-control" for="sort-select">정렬 <select id="sort-select"><option value="latest">최신순</option><option value="popular">인기순</option></select></label><label class="today-control"><input id="today-filter" type="checkbox"> 오늘 올라온 글만</label></div><span id="result-count" role="status">{len(posts)}편의 글</span></div><p id="views-status" class="views-status">조회수 집계 준비 중입니다.</p><p id="search-status" role="status" hidden></p><button id="search-retry" type="button" hidden>본문 검색 다시 시도</button><button id="search-reset" type="button" hidden>검색 초기화</button><div class="articles" id="article-list" data-search-source="{PREFIX}data/posts.json?v={hashlib.sha256(dump([public(p) for p in posts]).encode()).hexdigest()[:12]}">{''.join(card(p,views,today) for p in ordered)}</div><p id="empty-state" class="empty" role="status" hidden>조건에 맞는 글이 없습니다. 검색어나 분류를 바꿔 보세요.</p></section><aside class="callout"><span>한 번에 하나씩</span><h2>좋은 도구보다 중요한 건,<br>나에게 맞는 사용법입니다.</h2><p>도구생활은 새로운 앱을 더하는 대신, 이미 가진 도구를 잘 쓰는 방법을 이야기합니다.</p></aside><script id="posts-data" type="application/json">{dump([{k:v for k,v in public(p).items() if k!='body'} for p in posts])}</script><script id="view-data" type="application/json">{dump(views)}</script>'''
     return shell('디지털 일상을 가볍게',body)
 
@@ -256,6 +259,10 @@ def build(now=None):
     for p in posts:
         (diagrams/(p['slug']+'.svg')).write_text(diagram(p))
         target=docs/'post'/p['slug']/'index.html';target.parent.mkdir(parents=True,exist_ok=True);target.write_text(article(p,posts,views,illustrations.get(p['slug'])))
+    discovery_data=discoveries.validate(load('content/discoveries.json'))
+    discovery_target=docs/'discoveries/index.html'
+    discovery_target.parent.mkdir(exist_ok=True)
+    discovery_target.write_text(shell('귀여운 발견',discoveries.page(discovery_data,PREFIX),description='도움 되는 도구와 갖고 싶은 귀여운 소품. 출처와 쓰임을 확인하며 준비하는 도구생활의 작은 발견.',path='discoveries/'))
     (docs/'index.html').write_text(home(posts,views,now))
     (docs/'feed.xml').write_text(rss(posts),encoding='utf-8')
     (docs/'data').mkdir(exist_ok=True)
@@ -283,7 +290,7 @@ def build(now=None):
     if PUBLIC_SITE:
         (docs/'robots.txt').write_text('User-agent: *\nAllow: /\n\nSitemap: '+PRODUCTION_SITE+'/sitemap.xml\n')
         urls=ET.Element('urlset',xmlns='http://www.sitemaps.org/schemas/sitemap/0.9')
-        for path in ['', 'about/', 'contact/', 'privacy/']+['post/'+p['slug']+'/' for p in posts]:
+        for path in ['', 'about/', 'contact/', 'privacy/', 'discoveries/']+['post/'+p['slug']+'/' for p in posts]:
             ET.SubElement(ET.SubElement(urls,'url'),'loc').text=PRODUCTION_SITE+'/'+path
         (docs/'sitemap.xml').write_text('<?xml version="1.0" encoding="utf-8"?>\n'+ET.tostring(urls,encoding='unicode')+'\n')
     else:

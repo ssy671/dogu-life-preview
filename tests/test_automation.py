@@ -20,6 +20,8 @@ class AutomationTests(unittest.TestCase):
         self.inputs = {
             'scripts/build.py': b'print("render pages")\n',
             'scripts/automation.py': b'# render input definition\n',
+            'scripts/discoveries.py': b'# discovery renderer\n',
+            'content/discoveries.json': b'{"version":1,"items":[]}\n',
             'content/posts.json': json.dumps([
                 {'slug': 'first-post', 'body': 'Original article body'}
             ]).encode(),
