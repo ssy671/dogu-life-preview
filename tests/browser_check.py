@@ -189,8 +189,11 @@ with sync_playwright() as p:
   # Withdrawn publications must not be discoverable or accessible as article pages.
   for slug in ['seal-keycap-blender-v1-v2','seal-keycap-stl-size-mesh-check']:
    assert not any(post['slug']==slug for post in posts)
-   response=page.goto(base+'post/'+slug+'/?test=1')
-   assert response.status in [404,410], 'Withdrawn article must return 404/410'
+   requested_url=base+'post/'+slug+'/?test=1'
+   response=page.goto(requested_url)
+   assert response.status in [404,410], (
+    f'Withdrawn article must return 404/410: requested_url={requested_url}, '
+    f'status={response.status}, final_url={page.url}')
    expect(page.locator('.prose')).to_have_count(0)
   print('PASS: withdrawn article URLs return 404/410 without article content.')
   browser.close()
