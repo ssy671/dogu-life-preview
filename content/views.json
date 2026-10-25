@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-24T03:27:17.159837Z",
+  "updated_at": "2026-10-25T01:06:30.010207Z",
   "counts": {
     "check-email-in-windows": 1,
     "name-files-consistently": 1,
@@ -47,6 +47,9 @@
     "seal-keycap-stl-size-mesh-check": 1,
     "inventory-digital-subscriptions": 1,
     "arrange-workspace-for-task-context": 0,
-    "adjust-plan-for-urgent-interruption": 0
+    "adjust-plan-for-urgent-interruption": 0,
+    "resolve-collaborative-document-feedback": 0,
+    "record-reference-source-context": 0,
+    "fact-check-ai-generated-draft": 0
   }
 }
