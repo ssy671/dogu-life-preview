@@ -12,6 +12,9 @@ on:
   schedule:
     - cron: '0 0 * * *'
     - cron: '7 * * * *'
+    # Extra recovery opportunities at 09:23, 09:47, 10:23 and 10:47 KST.
+    # GitHub schedules are best effort; an independent monitor checks omissions.
+    - cron: '23,47 0,1 * * *'
   workflow_dispatch:
 permissions:
   contents: write
@@ -55,6 +58,11 @@ jobs:
               output.write(f"published={result['published']}\n")
               output.write(f"remaining={result['remaining']}\n")
           PY
+      - name: Check daily publication and record trigger details
+        env:
+          PUBLICATION_EVENT: ${{ github.event_name }}
+          PUBLICATION_SCHEDULE: ${{ github.event.schedule }}
+        run: python scripts/check_publication.py
       - name: Read public view totals without incrementing
         run: python scripts/sync_views.py
       - name: Decide whether render inputs need deployment
