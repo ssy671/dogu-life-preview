@@ -11,7 +11,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 BRANCH = 'refs/heads/publication-state'
 TRACKING = 'refs/remotes/origin/publication-state'
-FILES = ('views.json', 'deployment.json')
+FILES = ('views.json', 'deployment.json', 'telegram-notification.json')
 MESSAGE = '[skip ci] Refresh publication runtime state'
 BOT_NAME = 'github-actions[bot]'
 BOT_EMAIL = '41898282+github-actions[bot]@users.noreply.github.com'
@@ -62,6 +62,11 @@ def _validate(name, data):
                 or any(type(count) is not int or count < 0
                        for count in counts.values())):
             raise RuntimeStateError('Runtime views must contain nonnegative integer counts')
+    if name == 'telegram-notification.json':
+        if (set(value) != {'date', 'status', 'updated_at', 'run_id'}
+                or not re.fullmatch(r'\d{4}-\d{2}-\d{2}', str(value.get('date', '')))
+                or value.get('status') not in ('reserved', 'sent', 'uncertain')):
+            raise RuntimeStateError('Invalid Telegram delivery checkpoint')
 
 
 def _replace(path, data):
@@ -102,6 +107,8 @@ def load(root=ROOT):
         _replace(root / 'content' / name, data)
     if 'deployment.json' not in payloads:
         (root / 'content/deployment.json').unlink(missing_ok=True)
+    if 'telegram-notification.json' not in payloads:
+        (root / 'content/telegram-notification.json').unlink(missing_ok=True)
     return True
 
 

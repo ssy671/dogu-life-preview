@@ -96,6 +96,27 @@ class RuntimeStateTests(unittest.TestCase):
         self.assertEqual((self.root / 'scripts/code.py').read_bytes(), source)
         self.assertEqual(self.source_identity(), before)
 
+    def test_notification_checkpoint_survives_runtime_updates(self):
+        marker = {'date': '2026-10-28', 'status': 'sent',
+                  'updated_at': '2026-10-28T09:03:00+09:00', 'run_id': '1234'}
+        self.write('content/telegram-notification.json', marker)
+        runtime.save(self.root)
+        (self.root / 'content/telegram-notification.json').unlink()
+        runtime.load(self.root)
+        self.assertEqual(self.read('content/telegram-notification.json'), marker)
+        self.write('content/views.json', {'counts': {'first-post': 43}})
+        runtime.save(self.root)
+        saved = self.remote_git('show', f'{runtime.BRANCH}:content/telegram-notification.json')
+        self.assertEqual(json.loads(saved), marker)
+
+    def test_notification_checkpoint_rejects_destination_or_credentials(self):
+        marker = {'date': '2026-10-28', 'status': 'sent',
+                  'updated_at': '2026-10-28T09:03:00+09:00', 'run_id': '1234',
+                  'chat_id': 'do-not-store'}
+        self.write('content/telegram-notification.json', marker)
+        with self.assertRaises(runtime.RuntimeStateError):
+            runtime.save(self.root)
+
     def test_identical_save_does_not_create_another_commit(self):
         self.assertTrue(runtime.save(self.root))
         first = self.tip()
@@ -134,10 +155,12 @@ class RuntimeStateTests(unittest.TestCase):
 
     def test_missing_branch_preserves_both_main_baseline_files(self):
         before = {name: (self.root / 'content' / name).read_bytes()
+                  if (self.root / 'content' / name).exists() else None
                   for name in runtime.FILES}
         self.assertFalse(runtime.load(self.root))
         for name, data in before.items():
-            self.assertEqual((self.root / 'content' / name).read_bytes(), data)
+            path = self.root / 'content' / name
+            self.assertEqual(path.read_bytes() if path.exists() else None, data)
 
     def test_missing_remote_checkpoint_clears_stale_baseline_checkpoint(self):
         (self.root / 'content/deployment.json').unlink()
@@ -186,11 +209,13 @@ class RuntimeStateTests(unittest.TestCase):
         corrupt = self.git('commit-tree', tree, '-p', parent, '-m', 'Corrupt runtime JSON')
         self.git('push', 'origin', f'{corrupt}:{runtime.BRANCH}')
         before = {name: (self.root / 'content' / name).read_bytes()
+                  if (self.root / 'content' / name).exists() else None
                   for name in runtime.FILES}
         with self.assertRaises(runtime.RuntimeStateError):
             runtime.load(self.root)
         for name, data in before.items():
-            self.assertEqual((self.root / 'content' / name).read_bytes(), data)
+            path = self.root / 'content' / name
+            self.assertEqual(path.read_bytes() if path.exists() else None, data)
 
 
 if __name__ == '__main__':

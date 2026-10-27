@@ -178,3 +178,25 @@ jobs:
               assert not deployment_plan(event='schedule')['build']
               print('PASS: unchanged scheduled runs now skip build, deploy, and browser checks.')
           PY
+  notify:
+    needs: [publish, verify, checkpoint]
+    if: ${{ always() && !cancelled() && vars.DOGU_TELEGRAM_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Send at most one daily report to the verified Telegram chat
+        env:
+          DOGU_TELEGRAM_BOT_TOKEN: ${{ secrets.DOGU_TELEGRAM_BOT_TOKEN }}
+          DOGU_TELEGRAM_CHAT_ID: ${{ secrets.DOGU_TELEGRAM_CHAT_ID }}
+          PUBLICATION_PUBLISH_RESULT: ${{ needs.publish.result }}
+          PUBLICATION_VERIFY_RESULT: ${{ needs.verify.result }}
+          PUBLICATION_CHECKPOINT_RESULT: ${{ needs.checkpoint.result }}
+        run: python -m scripts.notify_telegram
