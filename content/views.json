@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-26T00:10:56.912949Z",
+  "updated_at": "2026-10-27T04:00:34.947297Z",
   "counts": {
     "check-email-in-windows": 1,
     "name-files-consistently": 1,
@@ -53,6 +53,9 @@
     "fact-check-ai-generated-draft": 0,
     "process-temporary-notes": 0,
     "compare-planned-actual-time": 0,
-    "keep-shared-document-source": 0
+    "keep-shared-document-source": 0,
+    "record-paper-receipts": 0,
+    "respond-to-additional-requests": 0,
+    "name-spreadsheet-columns": 0
   }
 }
