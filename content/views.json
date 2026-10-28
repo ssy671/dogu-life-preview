@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-27T04:00:34.947297Z",
+  "updated_at": "2026-10-28T01:13:01.781436Z",
   "counts": {
     "check-email-in-windows": 1,
     "name-files-consistently": 1,
@@ -56,6 +56,9 @@
     "keep-shared-document-source": 0,
     "record-paper-receipts": 0,
     "respond-to-additional-requests": 0,
-    "name-spreadsheet-columns": 0
+    "name-spreadsheet-columns": 0,
+    "handover-finished-project-files": 0,
+    "share-work-status-clearly": 0,
+    "read-chart-axes-and-units": 0
   }
 }
