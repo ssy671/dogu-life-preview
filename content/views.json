@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-29T00:49:19.926338Z",
+  "updated_at": "2026-10-30T00:50:41.505780Z",
   "counts": {
     "check-email-in-windows": 1,
     "name-files-consistently": 1,
@@ -62,6 +62,9 @@
     "read-chart-axes-and-units": 0,
     "separate-breaks-from-work": 0,
     "maintain-account-inventory": 0,
-    "check-web-information-dates": 0
+    "check-web-information-dates": 0,
+    "checklists-for-small-mistakes": 0,
+    "search-older-files-with-clues": 0,
+    "choose-simple-worklog-automation": 0
   }
 }
