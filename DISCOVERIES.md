@@ -1,6 +1,6 @@
 # 귀여운 발견 운영
 
-검증한 실제 출처가 있는 상품을 `content/discoveries.json`에 등록합니다. 직접 사용하지 않은 상품은 `found`로 표시합니다. 사진은 재사용 권한을 확인한 경우에만 게재하며, 권한 미확인 상품은 사진 없이 자료 조사로 소개합니다. 분류 그림은 직접 작성한 SVG이며 실제 상품을 묘사하지 않습니다.
+검증한 실제 출처가 있는 상품을 `content/discoveries.json`에 등록합니다. 직접 사용하지 않은 상품은 `found`로 표시합니다. 사진은 재사용 권한을 확인한 경우에만 게재하며, 이미지 없는 기존 두 항목은 공식 사진 링크로 보완합니다. 신규 자동 등록은 사용 가능한 공식 제품 이미지/실물 사진까지 확보된 상품을 대상으로 하며, 권한이 확인되지 않으면 등록을 보류합니다. 분류 그림은 직접 작성한 SVG이며 실제 상품을 묘사하지 않습니다.
 
 각 항목 필드:
 - `id`: 고유 식별자 (기존 식별자는 유지)
@@ -29,3 +29,9 @@
 상품은 기존 글·발행 큐에 섞지 않습니다. 소스 push 배포는 `release_for_event('push')`로 글 발행을 건너뛰며 글·큐·발행 상태를 변경하지 않습니다. 기존 정기 글 발행의 일정과 일일 검사는 유지합니다. 상품 등록은 workflow_dispatch로 글 발행을 강제 실행하지 않고 소스 push 배포로 진행합니다.
 
 검증: `python3 -m unittest discover -s tests -v`, `python3 scripts/build.py`. Playwright 환경에서 `python tests/browser_discoveries.py`는 로컬 빌드를 검사합니다. `BLOG_CHECK_URL=https://lifehint-daily.pages.dev/`를 지정하면 운영 화면의 상품, 링크, 미사용/관계 표시, 모바일 넘침을 검사합니다. 운영 배포 후 실제 페이지와 공개 JSON을 확인하고 성공 여부를 보고합니다.
+
+## 상품 이미지
+
+`image`는 검증한 이미지가 있을 때만 추가합니다. `file`은 `static/discoveries/` 아래의 로컬 PNG/JPEG/WebP이며 `alt`, `width`, `height`, `credit`, `source_url`, `permission`, `permission_url`, `permission_note`, `checked_at`을 기록합니다. `permission`은 보도용 배포 자료 `press_editorial`, 명시적 허가/라이선스 `licensed`, 직접 소유 사진 `owned`만 허용합니다. 공개된 상품 페이지나 출처 표기만으로 재사용 허가가 있다고 간주하지 않습니다. 보도용 자료는 실제 제공된 원본과 편집 목적 범위를 확인합니다. 공식 제품 이미지는 직접 촬영한 실물 사진이라고 표현하지 않습니다. 자산은 JSON과 같은 커밋에 추가하고 운영 화면에서 로딩과 대체 텍스트, 출처 표시를 확인합니다.
+
+2026-11-14 이미지 조사: UGREEN은 2024-09-06 제조사 보도자료의 공개 원본 배포 폴더에서 해당 100W 케이블 이미지를 확보했습니다. 원본·배포 근거·확인일·해시를 상품의 `image`에 기록했습니다. EPOMAKER의 공개 안내는 press kit 링크를 이메일로 요청하도록 되어 있어 Cloud Wrist Rest에 사용할 공개 허가 자료를 확보하지 못했습니다(https://epomaker.com/pages/exhibitions). Divoom은 상업 목적의 제품 사진 사용에 허가가 필요하다고 안내하며 이번 사이트에서 사용할 별도 허가는 확보하지 못했습니다(https://divoom.com/pages/intellectual-property-rights). 두 항목은 기존 상태를 유지하면서 공식 사진 링크를 제공합니다. 이 상태를 3개 사진 확보 완료로 보고하지 않습니다.

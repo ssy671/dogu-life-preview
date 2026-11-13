@@ -260,6 +260,9 @@ def build(now=None):
         (diagrams/(p['slug']+'.svg')).write_text(diagram(p))
         target=docs/'post'/p['slug']/'index.html';target.parent.mkdir(parents=True,exist_ok=True);target.write_text(article(p,posts,views,illustrations.get(p['slug'])))
     discovery_data=discoveries.validate(load('content/discoveries.json'))
+    for item in discovery_data['items']:
+        if item.get('image') and not (docs/item['image']['file']).is_file():
+            raise ValueError('Missing discovery image file: '+item['id'])
     # Public evidence snapshot also matches the existing Cloudflare static-file watch path.
     (docs/'static/discoveries.json').write_bytes((ROOT/'content/discoveries.json').read_bytes())
     discovery_target=docs/'discoveries/index.html'

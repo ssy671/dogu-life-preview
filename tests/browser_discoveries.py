@@ -49,7 +49,20 @@ with sync_playwright() as p:
                 expect(card).to_contain_text(item['checked_at'])
                 if item['affiliate'] is None: expect(card).to_contain_text('제휴·협찬 관계 미확인')
                 if item.get('price_note'): expect(card).to_contain_text(item['price_note'])
-                assert set(card.locator('a').evaluate_all('(links)=>links.map(link=>link.href)'))=={item['source_url'],item.get('seller_url',item['source_url'])}
+                links={item['source_url'],item.get('seller_url',item['source_url'])}
+                picture=item.get('image')
+                if picture:
+                    links.add(picture['source_url'])
+                    photo=card.locator('.discovery-photo img')
+                    expect(photo).to_have_count(1)
+                    expect(photo).to_have_attribute('alt',picture['alt'])
+                    photo.scroll_into_view_if_needed()
+                    photo.evaluate('(img)=>img.decode()')
+                    assert photo.evaluate('(img)=>img.complete && img.naturalWidth > 0')
+                    expect(card.locator('figcaption')).to_contain_text(picture['credit'])
+                else:
+                    expect(card.locator('.discovery-photo-link')).to_be_visible()
+                assert set(card.locator('a').evaluate_all('(links)=>links.map(link=>link.href)'))==links
                 for rel in card.locator('a').evaluate_all('(links)=>links.map(link=>link.rel)'):
                     assert 'noopener' in rel and 'noreferrer' in rel
             expect(page.locator('.discovery-empty')).to_have_count(0 if items else 1)
@@ -75,4 +88,4 @@ with sync_playwright() as p:
     page.keyboard.press('Enter');expect(page.locator('h1')).to_be_visible()
     assert page.evaluate('getComputedStyle(document.documentElement).scrollBehavior')=='auto'
     browser.close()
-print('PASS: discoveries 1440/900/390, light/dark, home/tab/back/search, overflow, keyboard focus and reduced motion; six screenshots saved.')
+print('PASS: discoveries 1440/900/390, light/dark, product image decoding and attribution, official-photo links, home/tab/back/search, overflow, keyboard focus and reduced motion; six screenshots saved.')

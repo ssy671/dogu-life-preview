@@ -16,13 +16,26 @@
       "cons": [
         "100W는 케이블의 지원 상한입니다. 실제 충전 속도는 충전기와 기기 지원 조건에 따라 달라집니다.",
         "480Mbps 규격이므로 고속 외장 SSD 용도에는 제한적입니다. 영상 출력 지원은 확인하지 못했습니다.",
-        "국내 판매자의 목록에 구매 1건·상품평 1개가 표시되어 있습니다. 판매처 표시 수치이며 실제 구매 내역은 독립적으로 검증하지 못했습니다. 주소별 배송 가능 여부도 미확인입니다.",
-        "상품 사진의 재사용 권한은 확인하지 못해 사진을 게재하지 않았습니다."
+        "국내 판매자의 목록에 구매 1건·상품평 1개가 표시되어 있습니다. 판매처 표시 수치이며 실제 구매 내역은 독립적으로 검증하지 못했습니다. 주소별 배송 가능 여부도 미확인입니다."
       ],
       "affiliate": null,
       "product_key": "ugreen-uno-usbc-100w",
       "seller_url": "https://item.gmarket.co.kr/Item?goodsCode=4653937237",
-      "price_note": "1m U-35501 기본 판매가 18,600원 + 배송비 2,500원. 쿠폰 적용가는 대상·조건에 따라 달라집니다. 최종 결제금액과 재고는 판매처에서 확인해 주세요."
+      "price_note": "1m U-35501 기본 판매가 18,600원 + 배송비 2,500원. 쿠폰 적용가는 대상·조건에 따라 달라집니다. 최종 결제금액과 재고는 판매처에서 확인해 주세요.",
+      "image": {
+        "file": "static/discoveries/ugreen-uno-usbc-100w.png",
+        "alt": "UGREEN Uno 100W USB-C 케이블의 양쪽 단자와 표정 표시부",
+        "width": 1980,
+        "height": 1020,
+        "credit": "UGREEN 제공 공식 제품 이미지 · 보도용 자료",
+        "source_url": "https://drive.google.com/file/d/1wPydf4v0iJGUo-XP-G1NQxi7v9ZzUqIs/view",
+        "permission": "press_editorial",
+        "permission_url": "https://en.prnasia.com/releases/global/ugreen-unveils-uno-series-at-ifa-2024-fast-charging-solutions-with-a-fun-twist-459804.shtml",
+        "permission_note": "UGREEN 발행 보도자료가 제품 사진을 제공하는 공개 Drive 폴더로 안내합니다. 해당 폴더의 High-res product photo/USB-C to USB-C Cable 100W.png 원본을 제품 설명용 편집 콘텐츠에 사용하며, 광고 소재나 직접 촬영 사진으로 표시하지 않습니다. PR Newswire의 사진 FAQ는 편집 목적 사용을 안내합니다.",
+        "usage_policy_url": "https://prnmedia.prnewswire.com/prnj-faq/",
+        "checked_at": "2026-11-14",
+        "sha256": "753db492c1087667cf25706ad4f14d2564a2cf44f47e755bd539bead5b456524"
+      }
     },
     {
       "id": "epomaker-cloud-wrist-rest-white",

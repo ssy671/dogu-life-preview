@@ -65,3 +65,28 @@ class DiscoveryTests(unittest.TestCase):
         self.assertIn('https://shop.example/item?x=1&amp;y=2',page)
         self.assertIn('판매처 확인하기 (새 탭)',page)
         self.assertIn('1개의 발견',discoveries.teaser('/',1))
+
+    def image(self):
+        return dict(file='static/discoveries/example.png', alt='<Product image>', credit='Brand official image', source_url='https://example.com/media', permission='press_editorial', permission_url='https://example.com/press', permission_note='Distributed for editorial coverage.', checked_at='2026-01-01', width=1980, height=1020)
+
+    def test_image_metadata_and_deployment_prefix(self):
+        self.item['image']=self.image()
+        data={'version':1,'items':[self.item]}
+        discoveries.validate(data)
+        for prefix in ['/', '/dogu-life-preview/']:
+            page=discoveries.page(data,prefix)
+            self.assertIn('src="'+prefix+'static/discoveries/example.png"',page)
+            self.assertIn('alt="&lt;Product image&gt;"',page)
+            self.assertIn('Brand official image',page)
+            self.assertNotIn('discovery-photo-pending',page)
+
+    def test_reject_unverified_or_unsafe_images(self):
+        for field,value in [('file','../private.png'),('file','https://example.com/image.png'),('file','static/discoveries/file.svg'),('permission','unknown'),('permission_url','javascript:alert(1)'),('permission_note',''),('credit',''),('alt',''),('width',0),('height',True),('checked_at','2999-01-01')]:
+            self.item['image']=self.image();self.item['image'][field]=value
+            with self.subTest(field=field),self.assertRaises(ValueError):
+                discoveries.validate({'version':1,'items':[self.item]})
+
+    def test_no_image_uses_official_photo_link_without_fabricating_picture(self):
+        card=discoveries.item_card(self.item)
+        self.assertIn('공식 상품 사진 보기',card)
+        self.assertNotIn('<img',card)
