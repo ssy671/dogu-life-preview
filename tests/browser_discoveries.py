@@ -40,7 +40,9 @@ with sync_playwright() as p:
             expect(page.locator('h1')).to_have_text('귀여운 발견')
             expect(page.locator('[aria-current="page"]')).to_have_text('귀여운 발견')
             expect(page.locator('.discovery-category')).to_have_count(3)
-            assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), (width,mode)
+            # A navigation click can finish before the new stylesheet has applied.
+            page.wait_for_load_state('load')
+            expect(page.locator('body')).to_have_css('overflow-wrap', 'anywhere')
             expect(page.locator('.discovery-item')).to_have_count(len(items))
             for item in items:
                 card=page.locator('.discovery-item').filter(has=page.get_by_role('heading',name=item['title'],exact=True))
@@ -67,6 +69,8 @@ with sync_playwright() as p:
                     assert 'noopener' in rel and 'noreferrer' in rel
             expect(page.locator('.discovery-empty')).to_have_count(0 if items else 1)
             page.screenshot(path=str(artifacts/f'discoveries-{width}-{mode}.png'),full_page=True)
+            overflow=page.evaluate('''() => ({viewport: innerWidth, width: document.documentElement.scrollWidth, elements: [...document.querySelectorAll('body *')].filter(el => el.getBoundingClientRect().right > innerWidth + 1).slice(0, 12).map(el => ({tag: el.tagName, className: String(el.className), right: el.getBoundingClientRect().right}))})''')
+            assert overflow['width'] <= overflow['viewport'], (width, mode, overflow)
             page.locator('a[href="#selection-guide"]').click()
             assert page.url.endswith('#selection-guide')
             page.locator('.discovery-return a').click()
