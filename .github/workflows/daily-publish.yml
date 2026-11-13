@@ -45,6 +45,17 @@ jobs:
           from scripts.runtime_state import load
           load()
           PY
+      # Keep the read-only counter refresh independent of editorial availability.
+      # An empty queue must still fail the publication check below, but must not
+      # prevent saving fresh counters on the separate runtime-state branch.
+      - name: Read public view totals without incrementing
+        run: python scripts/sync_views.py
+      - name: Save view changes without a site-source commit
+        run: |
+          python - <<'PY'
+          from scripts.runtime_state import save
+          save()
+          PY
       - name: Release at most three reviewed articles
         id: release
         run: |
@@ -62,8 +73,6 @@ jobs:
           PUBLICATION_EVENT: ${{ github.event_name }}
           PUBLICATION_SCHEDULE: ${{ github.event.schedule }}
         run: python scripts/check_publication.py
-      - name: Read public view totals without incrementing
-        run: python scripts/sync_views.py
       - name: Decide whether render inputs need deployment
         id: plan
         run: |
@@ -112,12 +121,6 @@ jobs:
             git commit -F "$RUNNER_TEMP/publication-message.txt"
             git push origin HEAD:main
           fi
-      - name: Save view changes without a site-source commit
-        run: |
-          python - <<'PY'
-          from scripts.runtime_state import save
-          save()
-          PY
       - uses: actions/upload-pages-artifact@v3
         if: steps.plan.outputs.build == 'true'
         with:

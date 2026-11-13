@@ -502,5 +502,101 @@
     "after_heading": "반복이 분명한 작은 연결을 고르세요",
     "width": 1536,
     "height": 1024
+  },
+  "restore-one-backup-file": {
+    "file": "static/illustrations/external-drive-inventory.webp",
+    "alt": "기기별 표식과 자료 목록을 나란히 놓은 두 개의 외장 저장장치",
+    "caption": "장치마다 구분할 이름과 자료 범위, 마지막 확인 시점을 함께 기록합니다.",
+    "after_heading": "원본과 다른 폴더로 복구하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "keep-a-small-decision-log": {
+    "file": "static/illustrations/meeting-notes-decisions-actions.webp",
+    "alt": "회의의 결정 카드에서 담당자와 기한이 있는 실행 카드로 이어지는 모습",
+    "caption": "확정한 결정과 실행할 일을 나누고, 실행 항목에는 담당자와 기한을 붙입니다.",
+    "after_heading": "선택 이유와 미확인 사항을 분리하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "inspect-csv-before-import": {
+    "file": "static/illustrations/spreadsheet-input-rules.webp",
+    "alt": "열별로 같은 종류의 값을 넣고 다른 입력 값은 따로 확인하는 표",
+    "caption": "각 열의 의미와 날짜·상태 같은 입력 형식을 먼저 맞춘 뒤 값을 확인합니다.",
+    "after_heading": "계산할 숫자와 식별자를 나누세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "prepare-offline-work-materials": {
+    "file": "static/illustrations/organize-work-folders.webp",
+    "alt": "진행 중인 문서와 보관할 문서를 나눈 두 개의 폴더 묶음",
+    "caption": "지금 쓰는 자료와 끝난 자료를 나누면, 매일 찾는 공간을 줄일 수 있습니다.",
+    "after_heading": "저장 표시보다 실제 열기를 확인하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "track-waiting-work-separately": {
+    "file": "static/illustrations/three-priorities-a-day.webp",
+    "alt": "긴 할 일 목록에서 따로 고른 세 개의 주요 작업",
+    "caption": "하루의 중요한 일 세 개는 전체 목록에서 따로 고른 완료 가능한 결과입니다.",
+    "after_heading": "응답 기한과 확인 날짜를 구분하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "compare-two-document-versions": {
+    "file": "static/illustrations/check-pdf-before-sending.webp",
+    "alt": "전달할 문서의 페이지와 내용을 확대해 확인하는 모습",
+    "caption": "변환된 파일을 직접 열어 페이지와 읽기 상태를 확인한 뒤 전달합니다.",
+    "after_heading": "같은 구간을 다르게 바꾼 부분을 찾으세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "preview-batch-file-renaming": {
+    "file": "static/illustrations/name-files-consistently.webp",
+    "alt": "같은 위치의 날짜·목적·버전 표식으로 정렬한 문서 카드",
+    "caption": "이름에 넣을 정보와 순서를 정해 두면 문서를 다시 고르기 쉬워집니다.",
+    "after_heading": "충돌과 예외를 작은 묶음에서 찾으세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "handover-a-small-automation": {
+    "file": "static/illustrations/write-handover-notes.webp",
+    "alt": "현재 기록에서 다음 행동과 자료 접근으로 이어지는 인수인계 묶음",
+    "caption": "현재 상태뿐 아니라 다음 행동과 자료를 여는 조건을 함께 남깁니다.",
+    "after_heading": "성공 메시지와 실제 결과를 연결하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "separate-spreadsheet-input-and-results": {
+    "file": "static/illustrations/spreadsheet-input-rules.webp",
+    "alt": "열별로 같은 종류의 값을 넣고 다른 입력 값은 따로 확인하는 표",
+    "caption": "각 열의 의미와 날짜·상태 같은 입력 형식을 먼저 맞춘 뒤 값을 확인합니다.",
+    "after_heading": "수식과 참고 값을 구분하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "write-a-readme-for-an-archive": {
+    "file": "static/illustrations/archive-or-delete-documents.webp",
+    "alt": "문서를 살핀 뒤 보관 상자와 확인 대기함으로 나누는 모습",
+    "caption": "현재 쓰지 않는 자료도 보관할 근거가 있는지 먼저 확인합니다.",
+    "after_heading": "열어볼 순서와 필요한 조건을 설명하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "set-a-small-work-in-progress-limit": {
+    "file": "static/illustrations/focus-time-on-calendar.webp",
+    "alt": "빈 여유를 남기고 작업 시간을 배치한 달력",
+    "caption": "지킬 수 있는 시간대에 작업을 배치하고, 조정할 여유도 남겨 둡니다.",
+    "after_heading": "끝낼 작은 단위를 정하세요",
+    "width": 1536,
+    "height": 1024
+  },
+  "verify-export-before-changing-tools": {
+    "file": "static/illustrations/choose-tools-by-workflow.webp",
+    "alt": "자료에서 결과물로 이어지는 흐름에 맞춰 고른 도구 블록",
+    "caption": "도구는 기능의 수보다 실제 업무의 시작과 결과에 맞춰 비교합니다.",
+    "after_heading": "파일이 생겼는지보다 내용을 확인하세요",
+    "width": 1536,
+    "height": 1024
   }
 }
