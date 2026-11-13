@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-30T00:50:41.505780Z",
+  "updated_at": "2026-11-13T14:57:08.356470Z",
   "counts": {
     "check-email-in-windows": 1,
     "name-files-consistently": 1,
@@ -29,7 +29,7 @@
     "document-headings-and-outline": 0,
     "separate-personal-work-files": 0,
     "organize-photos-by-event": 0,
-    "communicate-schedule-changes": 0,
+    "communicate-schedule-changes": 1,
     "choose-comparison-table-criteria": 0,
     "external-drive-inventory": 0,
     "start-with-one-notes-app": 0,
@@ -65,6 +65,6 @@
     "check-web-information-dates": 0,
     "checklists-for-small-mistakes": 0,
     "search-older-files-with-clues": 0,
-    "choose-simple-worklog-automation": 0
+    "choose-simple-worklog-automation": 1
   }
 }
