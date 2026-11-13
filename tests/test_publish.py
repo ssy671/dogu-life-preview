@@ -31,6 +31,14 @@ class PublishTests(unittest.TestCase):
  def test_short_queue_does_not_partially_release(self):
   self.write('queue.json',self.queue[:2]);self.assertEqual(self.run_at('2026-10-16T09:00:00+09:00')['published'],0)
   self.assertEqual(self.read('state.json')['last_release_date'],'2026-10-15')
+ def test_source_push_keeps_articles_queue_and_state_unchanged(self):
+  before={name:(self.root/'content'/name).read_bytes() for name in ['posts.json','queue.json','state.json']}
+  result=module.release_for_event('push',self.root,datetime.fromisoformat('2026-10-16T09:00:00+09:00'))
+  self.assertEqual(result['published'],0);self.assertEqual(result['remaining'],9)
+  self.assertEqual(before,{name:(self.root/'content'/name).read_bytes() for name in before})
+ def test_schedule_still_releases_articles(self):
+  result=module.release_for_event('schedule',self.root,datetime.fromisoformat('2026-10-16T09:00:00+09:00'))
+  self.assertEqual(result['published'],3)
  def test_stale_state_cannot_duplicate_a_completed_release(self):
   self.run_at('2026-10-16T09:00:00+09:00');self.write('state.json',{'last_release_date':'2026-10-15','publish_hour':9,'daily_limit':3})
   self.assertEqual(self.run_at('2026-10-16T10:00:00+09:00')['published'],0)

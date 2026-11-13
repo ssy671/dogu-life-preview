@@ -49,6 +49,7 @@ jobs:
       # An empty queue must still fail the publication check below, but must not
       # prevent saving fresh counters on the separate runtime-state branch.
       - name: Read public view totals without incrementing
+        if: github.event_name != 'push'
         run: python scripts/sync_views.py
       - name: Save view changes without a site-source commit
         run: |
@@ -61,14 +62,15 @@ jobs:
         run: |
           python - <<'PY'
           import json, os
-          from scripts.publish import release
-          result = release()
+          from scripts.publish import release_for_event
+          result = release_for_event(os.environ['GITHUB_EVENT_NAME'])
           print(json.dumps(result, ensure_ascii=False))
           with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
               output.write(f"published={result['published']}\n")
               output.write(f"remaining={result['remaining']}\n")
           PY
       - name: Check daily publication and record trigger details
+        if: github.event_name != 'push'
         env:
           PUBLICATION_EVENT: ${{ github.event_name }}
           PUBLICATION_SCHEDULE: ${{ github.event.schedule }}
@@ -183,7 +185,7 @@ jobs:
           PY
   notify:
     needs: [publish, verify, checkpoint]
-    if: ${{ always() && !cancelled() && vars.DOGU_TELEGRAM_ENABLED == 'true' }}
+    if: ${{ always() && !cancelled() && github.event_name != 'push' && vars.DOGU_TELEGRAM_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 3
     permissions:

@@ -7,7 +7,7 @@ import discoveries
 
 class DiscoveryTests(unittest.TestCase):
     def setUp(self):
-        self.item = dict(id='test', category='desk', experience='found', title='<example>', summary='Example only', source_url='https://example.com/item', checked_at='2026-01-01', affiliate=False, pros=['Documented feature'], cons=['Not tested'])
+        self.item = dict(id='test', product_key='Example-Model', category='desk', experience='found', title='<example>', summary='Example only', source_url='https://example.com/item', checked_at='2026-01-01', affiliate=False, pros=['Documented feature'], cons=['Not tested'])
 
     def test_empty_shelf_has_no_product_links(self):
         page = discoveries.page({'version': 1, 'items': []}, '/')
@@ -32,7 +32,36 @@ class DiscoveryTests(unittest.TestCase):
         self.assertIn('수수료', rendered)
 
     def test_reject_missing_and_unsafe_evidence(self):
-        for field, value in [('source_url', 'javascript:alert(1)'), ('source_url','https://user:password@example.com'), ('checked_at','2999-01-01'), ('affiliate',None), ('pros',[]), ('cons',None), ('experience','review')]:
+        for field, value in [('source_url', 'javascript:alert(1)'), ('source_url','https://user:password@example.com'), ('checked_at','2999-01-01'), ('affiliate','false'), ('affiliate',0), ('pros',[]), ('cons',None), ('experience','review'), ('product_key',''), ('seller_url','javascript:alert(1)')]:
             item = copy.deepcopy(self.item); item[field] = value
             with self.subTest(field=field, value=value), self.assertRaises(ValueError):
                 discoveries.validate({'version': 1, 'items': [item]})
+
+    def test_unknown_relationship_is_explicit_not_no_affiliation(self):
+        self.item['affiliate'] = None
+        discoveries.validate({'version': 1, 'items': [self.item]})
+        rendered = discoveries.item_card(self.item)
+        self.assertIn('제휴·협찬 관계 미확인', rendered)
+        self.assertNotIn('제휴 관계 없음', rendered)
+        del self.item['affiliate']
+        with self.assertRaises(ValueError): discoveries.validate({'version': 1, 'items': [self.item]})
+
+    def test_duplicate_model_and_tracking_url_are_rejected(self):
+        for changes in [dict(product_key='ＥＸＡＭＰＬＥ Model',source_url='https://other.example/item'), dict(product_key='Another-Model',source_url='https://example.com/item/?utm_source=new&variant=white#details')]:
+            duplicate = dict(self.item, id='another', **changes)
+            with self.subTest(changes=changes), self.assertRaises(ValueError):
+                discoveries.validate({'version': 1, 'items': [self.item, duplicate]})
+
+    def test_different_seller_item_numbers_are_not_duplicates(self):
+        first = dict(self.item,source_url='https://shop.example/item?goodsCode=123')
+        second = dict(self.item,id='second',product_key='Other-Model',source_url='https://shop.example/item?goodsCode=456')
+        discoveries.validate({'version': 1, 'items': [first,second]})
+
+    def test_populated_page_and_seller_price_are_safe(self):
+        self.item.update(seller_url='https://shop.example/item?x=1&y=2',price_note='<18,600원> + 배송비 2,500원')
+        page = discoveries.page({'version': 1, 'items': [self.item]}, '/')
+        self.assertNotIn('현재 등록된 상품은 없습니다', page)
+        self.assertIn('&lt;18,600원&gt;',page)
+        self.assertIn('https://shop.example/item?x=1&amp;y=2',page)
+        self.assertIn('판매처 확인하기 (새 탭)',page)
+        self.assertIn('1개의 발견',discoveries.teaser('/',1))

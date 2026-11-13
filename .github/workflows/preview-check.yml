@@ -42,7 +42,9 @@ jobs:
           python -m playwright install chromium
       - name: Verify production desktop and mobile behavior
         if: matrix.site == 'pages'
-        run: python tests/browser_check.py
+        run: |
+          python tests/browser_check.py
+          python tests/browser_discoveries.py
       - uses: actions/upload-artifact@v4
         if: always() && matrix.site == 'pages'
         with:

@@ -6,6 +6,13 @@ from zoneinfo import ZoneInfo
 ROOT=Path(__file__).resolve().parents[1]
 KST=ZoneInfo('Asia/Seoul')
 
+def release_for_event(event, root=ROOT, now=None):
+    """Source deployments never consume the editorial publication queue."""
+    if event == 'push':
+        queue=json.loads((root/'content/queue.json').read_text())
+        return {'published':0,'remaining':len(queue),'reason':'source update; article queue unchanged'}
+    return release(root,now)
+
 def release(root=ROOT,now=None):
     now=(now or datetime.now(timezone.utc)).astimezone(KST)
     read=lambda n:json.loads((root/'content'/n).read_text())
