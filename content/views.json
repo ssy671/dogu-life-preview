@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-14T03:05:53.875308Z",
+  "updated_at": "2026-11-14T05:16:53.333102Z",
   "counts": {
     "check-email-in-windows": 2,
     "name-files-consistently": 2,
@@ -68,6 +68,9 @@
     "choose-simple-worklog-automation": 2,
     "restore-one-backup-file": 1,
     "inspect-csv-before-import": 1,
-    "keep-a-small-decision-log": 1
+    "keep-a-small-decision-log": 1,
+    "track-waiting-work-separately": 0,
+    "prepare-offline-work-materials": 0,
+    "compare-two-document-versions": 0
   }
 }
