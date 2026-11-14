@@ -84,6 +84,55 @@
       "product_key": "divoom-timebox-evo",
       "seller_url": "https://item.gmarket.co.kr/Item?goodscode=3433861212",
       "price_note": "해외 판매처 표시가 49,900원, 기본 배송비 무료, 제주·도서산간 추가 5,000원 안내. 주소별 배송 가능 여부와 최종 금액은 결제 전 확인이 필요합니다."
+    },
+    {
+      "id": "ugreen-uno-6in1-usbc-hub-35998",
+      "product_key": "ugreen-uno-6in1-usbc-hub",
+      "category": "desk",
+      "experience": "found",
+      "title": "표정이 있는 UGREEN Uno 6-in-1 USB-C 허브",
+      "summary": "노트북의 USB-C 포트에 연결하는 로봇 표정 멀티허브입니다. 조사한 판매 구성은 U-35998 단품이며, 데이터용 USB-C 2개·USB-A 2개, HDMI와 PD 전원 입력을 제공합니다.",
+      "source_url": "https://kr.ugreen.com/products/uno-6-in-1-usb-c-hub-10gbps-4k60hz-100w",
+      "seller_url": "https://item.gmarket.co.kr/Item?goodsCode=4289503740",
+      "checked_at": "2026-11-14",
+      "affiliate": null,
+      "price_note": "U-35998 단품 기본 판매가 41,300원(KRW), 기본 배송비 무료. 제주 추가 3,000원·도서산간 추가 5,000원 안내. 39,240원은 5% 쿠폰 적용 조건부 가격입니다. 주소별 배송 가능 여부·재고·최종 결제금액은 미확인입니다.",
+      "pros": [
+        "제조사 자료상 상태 이모지 4종과 최대 10Gbps USB 3.2 Gen 2 데이터 포트 4개를 제공합니다.",
+        "HDMI 최대 4K 60Hz 출력과 PD 전원 연결을 한 허브로 처리할 수 있습니다. Windows·macOS·Linux에서 플러그 앤 플레이를 지원한다고 안내합니다."
+      ],
+      "cons": [
+        "HDMI를 사용하려면 연결 기기의 USB-C 포트가 영상 출력을 지원해야 합니다. 10Gbps라고 표시된 USB-C 포트는 데이터 전용이며 영상 출력용이 아닙니다.",
+        "PD 입력은 최대 100W지만 노트북으로 전달하는 충전 출력은 최대 85W이고 15W는 허브용으로 예약됩니다. PD 충전에는 별도 호환 충전기와 케이블이 필요하며, 해당 판매 구성의 동봉 여부는 미확인입니다.",
+        "제조사 한국어 페이지는 애플 정품 100W 충전기와 호환되지 않는다고 안내합니다. 개별 충전기·노트북 조합의 동작, 발열과 실제 전송 속도는 직접 시험하지 않았습니다.",
+        "G마켓 해당 상품의 검색 목록에는 구매 1건, 상세 페이지에는 상품평 0개가 표시됩니다. 판매처 표시일 뿐 실제 구매 내역은 독립 검증하지 못했습니다. 재고·주소별 배송·국내 보증 조건은 미확인입니다."
+      ],
+      "image": {
+        "file": "static/discoveries/ugreen-uno-6in1-usbc-hub.png",
+        "alt": "UGREEN Uno 6-in-1 USB-C 허브의 표정 화면과 USB 포트, 일체형 연결 케이블",
+        "width": 1980,
+        "height": 1020,
+        "credit": "UGREEN 제공 공식 제품 이미지 · 보도용 자료",
+        "source_url": "https://drive.google.com/file/d/1Ucaplbr3z1UZit6wHjUx6Z21iYhgTUhE/view",
+        "permission": "press_editorial",
+        "permission_url": "https://en.prnasia.com/releases/global/ugreen-unveils-uno-series-at-ifa-2024-fast-charging-solutions-with-a-fun-twist-459804.shtml",
+        "permission_note": "UGREEN 발행 보도자료의 제품 사진 제공 링크에서 공개 배포된 High-res product photo/6-in-1 USB-C Hub.png 원본입니다. 제품을 소개하는 편집 콘텐츠에만 사용하며 광고 소재나 직접 촬영 사진으로 표시하지 않습니다. PR Newswire 사진 FAQ의 편집 목적 사용 안내를 함께 확인했습니다.",
+        "usage_policy_url": "https://prnmedia.prnewswire.com/prnj-faq/",
+        "checked_at": "2026-11-14",
+        "sha256": "578682026af06850a1aed666db34f263a202db53596e752cfeeb2452f1c0676a"
+      },
+      "evidence": [
+        {
+          "url": "https://www.gmarket.co.kr/n/search?keyword=%EC%9C%A0%EA%B7%B8%EB%A6%B0+usb+%ED%97%88%EB%B8%8C",
+          "checked_at": "2026-11-14",
+          "note": "상품번호 4289503740의 구매 1건 표시 확인. 상세 페이지 상품평 0개와 구분."
+        },
+        {
+          "url": "https://ko.aliexpress.com/item/1005007398525395.html",
+          "checked_at": "2026-11-14",
+          "note": "실제 상품 페이지 접근 실패. 가격·배송·구매 수 검증에 사용하지 않음."
+        }
+      ]
     }
   ]
 }
