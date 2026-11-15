@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-14T16:59:33.735592Z",
+  "updated_at": "2026-11-15T05:12:14.890236Z",
   "counts": {
     "check-email-in-windows": 2,
     "name-files-consistently": 2,
@@ -71,6 +71,9 @@
     "keep-a-small-decision-log": 1,
     "track-waiting-work-separately": 0,
     "prepare-offline-work-materials": 0,
-    "compare-two-document-versions": 0
+    "compare-two-document-versions": 0,
+    "preview-batch-file-renaming": 0,
+    "handover-a-small-automation": 0,
+    "separate-spreadsheet-input-and-results": 0
   }
 }
