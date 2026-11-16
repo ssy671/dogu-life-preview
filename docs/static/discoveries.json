@@ -133,6 +133,55 @@
           "note": "실제 상품 페이지 접근 실패. 가격·배송·구매 수 검증에 사용하지 않음."
         }
       ]
+    },
+    {
+      "id": "ugreen-uno-2in1-wireless-charger-w709",
+      "product_key": "ugreen-uno-w709",
+      "category": "desk",
+      "experience": "found",
+      "title": "고개를 드는 UGREEN Uno W709 무선충전기",
+      "summary": "로봇 표정과 각도 조절 거치대를 갖춘 Qi2 무선충전기입니다. 조사한 국내 판매 옵션은 W709이며, 휴대폰 최대 15W·이어폰 최대 5W 무선충전과 별도 5W USB-C 출력을 제공합니다.",
+      "source_url": "https://www.ugreen.com/en-sg/products/sg-35569",
+      "seller_url": "https://itempage3.auction.co.kr/DetailView.aspx?itemno=E893931658",
+      "checked_at": "2026-11-16",
+      "affiliate": null,
+      "price_note": "2026-11-16 확인: 옥션 상품 01 W709 표시 할인가 59,900원(KRW, 기준가 60,000원에서 판매자 100원 할인). 15,000원 이상 기본 배송비 무료이며 제주 추가 2,500원·기타 도서 추가 4,000원 안내. 별도 전원 어댑터 비용은 포함하지 않았습니다. 재고·주소별 배송 가능 여부·최종 결제금액은 미확인입니다.",
+      "pros": [
+        "제조사 자료상 Qi2 인증 휴대폰 충전부와 이어폰 충전부를 함께 사용하며, 표정 화면으로 충전 상태를 보여 줍니다.",
+        "상단 충전부는 최대 70도까지 각도를 조절할 수 있어 책상 위 휴대폰 거치대로도 사용할 수 있습니다."
+      ],
+      "cons": [
+        "USB-C 외부 전원이 필요합니다. 제조사 구성에는 약 1m USB-C 케이블이 포함되고 전원 어댑터는 제외됩니다. 국내 판매 구성의 동봉품과 권장 어댑터 출력·규격은 구매 전 확인이 필요합니다.",
+        "제조사는 아이폰과 자석 호환 케이스 또는 케이스 없는 사용을 권장합니다. 이어폰은 무선충전 지원 케이스가 필요하며, 개별 휴대폰·케이스 조합의 호환성과 실제 충전 속도·발열은 직접 시험하지 않았습니다.",
+        "판매명에 표시된 25W는 휴대폰 단독 무선충전 속도가 아닙니다. 휴대폰 15W, 이어폰 5W, USB-C 출력 5W로 구분되며, 시계 충전에는 별도 충전 모듈이 필요합니다.",
+        "구매 수량·해당 옵션의 상품평 수·재고·주소별 배송·국내 보증은 미확인입니다. 공식 제품 이미지이며 직접 촬영하거나 사용한 사진이 아닙니다."
+      ],
+      "image": {
+        "file": "static/discoveries/ugreen-uno-w709.png",
+        "alt": "UGREEN Uno W709 무선충전기의 위로 열린 Qi2 충전판과 로봇 표정 화면, 하단 USB-C 출력 포트",
+        "width": 1980,
+        "height": 1020,
+        "credit": "UGREEN 제공 공식 제품 이미지 · 보도용 자료",
+        "source_url": "https://drive.google.com/file/d/1yZ07MvdtOKTSJxuVf4HmpaKpFi0IBzRV/view",
+        "permission": "press_editorial",
+        "permission_url": "https://en.prnasia.com/releases/global/ugreen-unveils-uno-series-at-ifa-2024-fast-charging-solutions-with-a-fun-twist-459804.shtml",
+        "permission_note": "UGREEN 발행 보도자료가 연결한 공개 배포 폴더의 High-res product photo/2-in-1 Magnetic Wireless Charger 15W.png 원본입니다. PR Newswire 사진 FAQ의 편집 목적 사용 안내를 확인했으며, 제품 소개 편집 콘텐츠에만 사용합니다. 광고 소재나 직접 촬영 사진으로 표시하지 않습니다.",
+        "usage_policy_url": "https://prnmedia.prnewswire.com/prnj-faq/",
+        "checked_at": "2026-11-16",
+        "sha256": "89e320d110f71500a23c34a5c63ae27d88a2d3ff95dece68d3be5a1938f70725"
+      },
+      "evidence": [
+        {
+          "url": "https://www.ugreen.com/pages/uno-series",
+          "checked_at": "2026-11-16",
+          "note": "Uno 2-in-1 15W의 최대 70도 각도 조절과 제조사 상품 링크 확인. 로켓형 30W 신모델과 구분."
+        },
+        {
+          "url": "https://www.aliexpress.com/item/1005007709692877.html",
+          "checked_at": "2026-11-16",
+          "note": "실제 상품 페이지 접근 차단(non-retryable). 가격·구매 수량·한국 배송 검증에 사용하지 않음."
+        }
+      ]
     }
   ]
 }
