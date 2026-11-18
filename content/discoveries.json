@@ -182,6 +182,50 @@
           "note": "실제 상품 페이지 접근 차단(non-retryable). 가격·구매 수량·한국 배송 검증에 사용하지 않음."
         }
       ]
+    },
+    {
+      "id": "ugreen-uno-charger-100w",
+      "product_key": "ugreen-uno-charger-100w",
+      "category": "desk",
+      "experience": "found",
+      "title": "표정이 바뀌는 UGREEN Uno 100W 로봇 충전기",
+      "summary": "TFT 표정 화면과 자석식 발 덮개가 있는 4포트 GaN 충전기입니다. USB-C 3개와 USB-A 1개를 제공하며, 비교한 판매 옵션은 05 US Plug 100W Black입니다.",
+      "source_url": "https://us.ugreen.com/products/ugreen-uno-100w-usb-c-gan-charger-4-ports",
+      "seller_url": "https://www.11st.co.kr/products/8957062795",
+      "checked_at": "2026-11-18",
+      "affiliate": null,
+      "price_note": "2026-11-18 확인: 11번가 봉구상사 옵션 05 US Plug 100W Black 표시 판매가 85,220원(KRW), 기본 배송비 무료. 옵션 01 UK·04 EU 단품도 85,220원이며 02·03·06 With 2M Robot Cable은 95,020원이나 각 묶음의 플러그 대응은 미확인입니다. 주소별 추가 배송비·재고·최종 결제금액은 미확인이고, 국내 사용에 필요한 플러그 변환 어댑터 비용은 포함하지 않았습니다.",
+      "pros": [
+        "제조사 자료상 로봇 표정이 표시되는 TFT 화면과 자석식 발 덮개를 갖추고 있습니다. 숫자만 표시하는 시계가 아닌 충전용 소품입니다.",
+        "USB-C 3개·USB-A 1개로 기기 4대를 연결할 수 있으며 총 출력 상한은 100W입니다. 제조사 규격의 입력 전압은 100–240V, 50/60Hz입니다."
+      ],
+      "cons": [
+        "비교 옵션은 미국형 플러그입니다. 한국 콘센트에 바로 연결하는 국내형 제품이 아니므로 규격에 맞는 변환 어댑터가 필요합니다. 판매 옵션의 KC 인증·국내 보증·부속품 포함 여부는 미확인입니다.",
+        "100W는 총 출력 상한이며 모든 포트에서 동시에 100W를 내는 의미가 아닙니다. 기기·케이블·충전 규격과 연결 조합에 따라 출력이 달라지고 실제 속도·발열은 직접 시험하지 않았습니다.",
+        "화면은 표정을 보여 주며 사용자 픽셀 그림을 올리는 디스플레이로 확인된 제품이 아닙니다. 발 덮개는 분리되는 부품이므로 보관이 필요합니다.",
+        "공식 미국 판매 페이지에는 리뷰 86개, 비교한 11번가 페이지에는 리뷰 0개가 표시됩니다. 판매처 표시만 확인했으며 구매 수량과 실제 구매 내역은 독립 검증하지 못했습니다. 판매자는 전국 배송을 안내하지만 주소별 배송 가능 여부는 미확인입니다."
+      ],
+      "image": {
+        "file": "static/discoveries/ugreen-uno-charger-100w.png",
+        "alt": "UGREEN Uno 100W 충전기의 선글라스 표정 화면과 상단 USB-C 3개·USB-A 1개, 발 모양 덮개",
+        "width": 1980,
+        "height": 1020,
+        "credit": "UGREEN 제공 공식 제품 이미지 · 보도용 자료",
+        "source_url": "https://drive.google.com/file/d/1KI9rB4rp7J0o7BwXcCpXEt4iUK_vKfaf/view",
+        "permission": "press_editorial",
+        "permission_url": "https://en.prnasia.com/releases/global/ugreen-unveils-uno-series-at-ifa-2024-fast-charging-solutions-with-a-fun-twist-459804.shtml",
+        "permission_note": "UGREEN 보도자료의 제품 사진 제공 링크가 연결하는 공개 폴더 High-res product photo/Uno charger 100W.png 원본입니다. 제품 소개 편집 콘텐츠에만 사용하며 광고 소재나 직접 촬영한 실물 사진으로 표시하지 않습니다. PR Newswire 사진 FAQ의 편집 목적 사용 안내를 확인했습니다.",
+        "usage_policy_url": "https://prnmedia.prnewswire.com/prnj-faq/",
+        "checked_at": "2026-11-18",
+        "sha256": "f334d415344f69ca76d6a34b79b979a2c9b32fe5103a4efd2b686f219b582e78"
+      },
+      "evidence": [
+        {
+          "url": "https://s.click.aliexpress.com/e/_oFW1s1X",
+          "checked_at": "2026-11-18",
+          "note": "Uno 100W 충전기 리뷰가 연결한 AliExpress 판매 링크는 non-retryable 오류로 열리지 않았습니다. 최종 판매 URL·가격·한국 배송·구매 수 검증에는 사용하지 않았습니다."
+        }
+      ]
     }
   ]
 }
