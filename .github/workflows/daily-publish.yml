@@ -87,6 +87,9 @@ jobs:
               output.write(f"build={str(plan['build']).lower()}\n")
           print('Full site deployment required:', plan['build'])
           PY
+      - name: Build illustrated pages only when needed
+        if: steps.plan.outputs.build == 'true'
+        run: python scripts/build.py
       - name: Validate publication, views, and deployment rules
         if: steps.plan.outputs.build == 'true'
         run: python -m unittest discover -s tests -v
@@ -102,9 +105,6 @@ jobs:
           assert record(ROOT, os.environ['EXPECTED_BUILD'])
           save()
           PY
-      - name: Build illustrated pages only when needed
-        if: steps.plan.outputs.build == 'true'
-        run: python scripts/build.py
       - name: Save publication or a view-only snapshot
         env:
           PUBLISHED: ${{ steps.release.outputs.published }}
