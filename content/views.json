@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-17T22:13:12.445183Z",
+  "updated_at": "2026-11-19T06:17:27.859962Z",
   "counts": {
     "check-email-in-windows": 2,
     "name-files-consistently": 2,
@@ -77,6 +77,9 @@
     "separate-spreadsheet-input-and-results": 0,
     "write-a-readme-for-an-archive": 0,
     "set-a-small-work-in-progress-limit": 0,
-    "verify-export-before-changing-tools": 0
+    "verify-export-before-changing-tools": 0,
+    "write-a-reproducible-error-report": 0,
+    "check-a-form-with-keyboard-only": 0,
+    "include-time-zone-in-a-meeting-invite": 0
   }
 }
